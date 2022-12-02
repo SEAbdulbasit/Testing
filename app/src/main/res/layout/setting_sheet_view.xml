@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/btnDownSetting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_down"
+            android:layout_margin="10dp"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="5dp"
+            />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textMainHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/bottomSheetHeading"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnDownSetting"
+            />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textMultipleScan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/textMultiScanHeading"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textMainHeading" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textMultiScanText"
+            android:layout_width="0dp"
+            android:textColor="#99000000"
+            android:layout_height="wrap_content"
+            android:text="@string/textMultiScanTEXT"
+            android:lineHeight="24dp"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintRight_toLeftOf="@id/btnSwitchSetting"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintLeft_toRightOf="@id/textMultiScanText"
+            app:layout_constraintTop_toBottomOf="@id/textMultipleScan" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/btnSwitchSetting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:track="@drawable/custom_track"
+            android:thumb="@drawable/custom_thumb"
+            app:layout_constraintBottom_toBottomOf="@id/textMultiScanText"
+            app:layout_constraintStart_toEndOf="@+id/textMultiScanText"
+            app:layout_constraintTop_toBottomOf="@id/textMultipleScan" />
+
+        <View
+            android:id="@+id/horizontalLine"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:background="#f5f5f5"
+            android:padding="10dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintVertical_bias="0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textMultiScanText"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/textDetailsSettings"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/horizontalLine"
+            android:layout_marginTop="10dp"
+            app:layout_constraintHorizontal_bias="0" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textBarcodeNames"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/barcodeName"
+            android:paddingTop="5dp"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:textColor="#99000000"
+            android:lineHeight="24dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textDetails" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
