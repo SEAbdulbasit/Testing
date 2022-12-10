@@ -1,22 +1,26 @@
 package com.example.customscannerview.mlkit
 
-import android.graphics.*
-import android.util.Log
-import com.example.customscannerview.mlkit.modelclasses.BoxSides
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
+import com.example.customscannerview.mlkit.GraphicOverlay.Graphic
 import com.google.mlkit.vision.barcode.common.Barcode
-import kotlin.math.max
-import kotlin.math.min
 
-/** Graphic instance for rendering Barcode position and content information in an overlay view. */
-class BarcodeGraphic constructor(
-    private val overlay: GraphicOverlay,
+/**
+ * Graphic instance for rendering Barcode position and content information in an overlay view.
+ */
+class BarcodeGraphic internal constructor(
+    overlay: GraphicOverlay?,
     private val barcode: Barcode?,
-    private val boxSides: BoxSides,
-    private val result: (Boolean) -> Unit,
-) : GraphicOverlay.Graphic(overlay) {
+    val invoke: RectF
+) :
+    Graphic(overlay) {
     private val rectPaint: Paint = Paint()
     private val barcodePaint: Paint
     private val labelPaint: Paint
+    var isInsideScanningArea: Boolean = false
+    var canvas: Canvas? = null
 
     init {
         rectPaint.color = MARKER_COLOR
@@ -35,26 +39,22 @@ class BarcodeGraphic constructor(
      */
     override fun draw(canvas: Canvas) {
         checkNotNull(barcode) { "Attempting to draw a null barcode." }
+        this.canvas = canvas
+
         // Draws the bounding box around the BarcodeBlock.
         val rect = RectF(barcode.boundingBox)
         // If the image is flipped, the left will be translated to right, and the right to left.
         val x0 = translateX(rect.left)
         val x1 = translateX(rect.right)
-        rect.left = min(x0, x1)
-        rect.right = max(x0, x1)
+        rect.left = Math.min(x0, x1)
+        rect.right = Math.max(x0, x1)
         rect.top = translateY(rect.top)
         rect.bottom = translateY(rect.bottom)
-        canvas.drawRect(rect, rectPaint)
+        if (invoke.contains(rect)) {
+            isInsideScanningArea = true
 
-        val focusArea = calculateFocusArea()
-        val focus1=RectF(boxSides.boxLeftSide,boxSides.boxTopSide,boxSides.boxRightSide,boxSides.boxBottomSide)
-        //72.0  584.4, 648  876.6
+            canvas.drawRect(rect, rectPaint)
 
-        val isInFocusArea = targetIsInFocusArea(focus1, rect)
-        result.invoke(isInFocusArea)
-
-        /*// todo: if you don't want to draw the banner remove below code
-        if (isInFocusArea) {
             // Draws other object info.
             val lineHeight = TEXT_SIZE + 2 * STROKE_WIDTH
             val textWidth = barcodePaint.measureText(barcode.displayValue)
@@ -66,35 +66,34 @@ class BarcodeGraphic constructor(
                 labelPaint
             )
             // Renders the barcode at the bottom of the box.
-            canvas.drawText(barcode.displayValue!!, rect.left, rect.top - STROKE_WIDTH, barcodePaint)
-        }*/
+            canvas.drawText(
+                barcode.displayValue!!,
+                rect.left,
+                rect.top - STROKE_WIDTH,
+                barcodePaint
+            )
+        } else {
+            isInsideScanningArea = false
+        }
     }
 
-    private fun calculateFocusArea(): RectF {
-        val height = overlay.measuredHeight.toFloat()
-        val width = overlay.measuredWidth.toFloat()
-       /* val left = (width / 2) - (focusBoxSize / 2)
-        val right = (width / 2) + (focusBoxSize / 2)
-        val top = (height / 2) - (focusBoxSize / 2)
-        val bottom = (height / 2) + (focusBoxSize / 2)*/
-        val left = (width / 2) - (2 / 2)
-        val right = (width / 2) + (2 / 2)
-        val top = (height / 2) - (2 / 2)
-        val bottom = (height / 2) + (2 / 2)
+    fun getDrawingReact(barcode: Barcode): RectF {
+        // Draws the bounding box around the BarcodeBlock.
+        val rect = RectF(barcode.boundingBox)
+        // If the image is flipped, the left will be translated to right, and the right to left.
+        val x0 = translateX(rect.left)
+        val x1 = translateX(rect.right)
+        rect.left = Math.min(x0, x1)
+        rect.right = Math.max(x0, x1)
+        rect.top = translateY(rect.top)
+        rect.bottom = translateY(rect.bottom)
 
-        //        //72.0  584.4, 648  876.6
-        Log.d("HELLOABC", "calculateFocusArea: ${RectF(left,top,right,bottom)}")
-        return RectF(left, top, right, bottom)
-    }
-
-    private fun targetIsInFocusArea(focus: RectF, target: RectF): Boolean {
-        return (focus.left < target.left) && (target.right < focus.right)
-                && (focus.top < target.top) && (focus.bottom > target.bottom)
+        return rect
     }
 
     companion object {
         private const val TEXT_COLOR = Color.BLACK
-        private const val MARKER_COLOR = Color.TRANSPARENT
+        private const val MARKER_COLOR = Color.WHITE
         private const val TEXT_SIZE = 54.0f
         private const val STROKE_WIDTH = 4.0f
     }

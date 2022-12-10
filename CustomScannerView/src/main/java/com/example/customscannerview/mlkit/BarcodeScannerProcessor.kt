@@ -1,5 +1,7 @@
 package com.example.customscannerview.mlkit
 
+import android.graphics.RectF
+import android.util.Log
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.example.customscannerview.mlkit.modelclasses.BoxSides
 import com.google.android.gms.tasks.Task
@@ -18,7 +20,8 @@ class BarcodeScannerProcessor(
     private val textCallback: CameraXTextCallback,
     private val multiBarcodes: CameraXMultiBarcodeCallback,
     private val somethingDetected: OnScanResult,
-    ) : VisionProcessorBase<List<Barcode>>() {
+    private val getRectCallback: () -> RectF?
+) : VisionProcessorBase<List<Barcode>>() {
 
     // Note that if you know which format of barcode your app is dealing with, detection will be
     // faster to specify the supported barcode formats one by one, e.g.
@@ -49,18 +52,28 @@ class BarcodeScannerProcessor(
     }
 
     override fun onSuccess(results: List<Barcode>, graphicOverlay: GraphicOverlay) {
-        somethingDetected.onViewDetected(results as MutableList<Barcode>)
-        for (barcode in results) {
-            graphicOverlay.add(BarcodeGraphic(graphicOverlay, barcode, boxSides) { isInFocus ->
-                val displayValue = barcode.displayValue
-                val rawValue = barcode.rawValue
-                if (isInFocus) {
-                    callback.onNewBarcodeScanned(barcode)
+        Log.d("Measurements mt", "Before Filter: ${results.size}")
+        getRectCallback.invoke()?.let { scanningRect ->
+            val filteredResults = results.map { barcode ->
+                val barcodeOverlay = BarcodeGraphic(graphicOverlay, barcode, scanningRect)
+                val barcodeDrawingReact = barcodeOverlay.getDrawingReact(barcode)
+                Log.d(
+                    "Measurements",
+                    "Scanning rect top: ${scanningRect.bottom} and barcode drawing rect top ${barcodeDrawingReact.top}"
+                )
+                if (barcodeDrawingReact.top < scanningRect.bottom && barcodeDrawingReact.bottom > scanningRect.top) {
+                    // graphicOverlay.add(barcodeOverlay)
+                    BarodeWithAreaFlag(barcode, true)
+                } else {
+                    BarodeWithAreaFlag(barcode, false)
                 }
-            })
+            }.filter { it.isWithInScanningArea }
+                .onEach { callback.onNewBarcodeScanned(barcode = it.barcode) }.map { it.barcode }
+
+            Log.d("Measurements mt", "Aafter Filter: ${filteredResults.size}")
+            somethingDetected.onViewDetected(filteredResults.toMutableList())
         }
     }
-
 
 
     override fun onFailure(e: Exception) {
@@ -69,15 +82,19 @@ class BarcodeScannerProcessor(
 
 }
 
+data class BarodeWithAreaFlag(val barcode: Barcode, val isWithInScanningArea: Boolean)
+
 fun interface CameraXBarcodeCallback {
     fun onNewBarcodeScanned(barcode: Barcode)
 
 }
-fun interface CameraXTextCallback{
-    fun onTextDetected(text:Text)
+
+fun interface CameraXTextCallback {
+    fun onTextDetected(text: Text)
 }
-fun interface CameraXMultiBarcodeCallback{
-    fun onMultiBarcodeScanned(barcodes:MutableList<Barcode>)
+
+fun interface CameraXMultiBarcodeCallback {
+    fun onMultiBarcodeScanned(barcodes: MutableList<Barcode>)
 }
 
 

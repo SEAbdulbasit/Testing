@@ -1,5 +1,7 @@
 package com.example.customscannerview.mlkit.views
 
+import android.R.attr.translateX
+import android.R.attr.translateY
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -9,6 +11,8 @@ import com.example.customscannerview.R
 
 
 class RectangleView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+
+    var mainCanvas:Canvas?= null
 
     var boxLeftSide=0F
     var boxTopSide=0F
@@ -45,6 +49,7 @@ class RectangleView(context: Context, attrs: AttributeSet?) : View(context, attr
         context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_corner_radius).toFloat()
 
     private var boxRect: RectF? = null
+    var scanningBoxRect: RectF? = null
 
     fun setRectangleViewFinder() {
         val overlayWidth = width.toFloat()
@@ -76,6 +81,7 @@ class RectangleView(context: Context, attrs: AttributeSet?) : View(context, attr
             eraserPaint.style = Paint.Style.STROKE
             canvas.drawRoundRect(it, boxCornerRadius, boxCornerRadius, eraserPaint)
             // Draws the box.
+            scanningBoxRect=it
             canvas.drawRoundRect(it, boxCornerRadius, boxCornerRadius, boxPaint)
             drawRectangleBarView(canvas)
         }
@@ -105,9 +111,6 @@ class RectangleView(context: Context, attrs: AttributeSet?) : View(context, attr
         val top = cy-boxHeight/1.5f
         val right = cx+boxWidth/2
         val bottom = cy+boxHeight/4.5f
-
-
-
 
         val path = Path()
 

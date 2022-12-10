@@ -1,11 +1,9 @@
-package com.example.scannerview.views
+package com.example.customscannerview.mlkit.views
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
-import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.example.customscannerview.R
 
@@ -43,7 +41,8 @@ class SquareView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private val boxCornerRadius: Float =
         context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_corner_radius).toFloat()
 
-    private var boxRect: RectF? = null
+    var boxRect: RectF? = null
+    var scanningBoxRect: RectF? = null
 
     fun setSquareViewFinder() {
         val overlayWidth = width.toFloat()
@@ -77,8 +76,11 @@ class SquareView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             // Draws the box.
             canvas.drawRoundRect(it, boxCornerRadius, boxCornerRadius, boxPaint)
             drawSquareBarView(canvas)
+            scanningBoxRect = it
+
         }
     }
+
     fun drawSquareBarView(canvas: Canvas) {
         val paint = Paint()
         paint.color = Color.WHITE

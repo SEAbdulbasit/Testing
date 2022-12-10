@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.graphics.RectF
 import android.util.*
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +29,6 @@ import com.example.scannerview.modelclasses.ocr_request.OcrRequest
 import com.example.scannerview.modelclasses.ocr_response.OcrResponse
 import com.example.customscannerview.mlkit.service.OcrApiService
 import com.example.customscannerview.mlkit.service.ServiceBuilder
-import com.example.scannerview.views.SquareView
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -40,8 +40,10 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class CustomScannerView(context: Context,
-                        val attrs: AttributeSet?) :
+class CustomScannerView(
+    context: Context,
+    val attrs: AttributeSet?
+) :
     FrameLayout(context, attrs),
     CameraXBarcodeCallback,
     CameraXTextCallback,
@@ -58,24 +60,23 @@ class CustomScannerView(context: Context,
     private var cameraExecutor: ExecutorService? = null
     lateinit var imageView: ImageView
     var imageProcessor: VisionImageProcessor? = null
-     var rectangleView= RectangleView(context,attrs)
-     var squareView=SquareView(context,attrs)
+    var rectangleView = RectangleView(context, attrs)
+    var squareView = SquareView(context, attrs)
     private var needUpdateGraphicOverlayImageSourceInfo = false
     private lateinit var previewView: PreviewView
     private lateinit var graphicOverlay: GraphicOverlay
     lateinit var selectedViewType: ViewType
-    private var boxSides= BoxSides(0F,0F,0F,0F)
+    private var boxSides = BoxSides(0F, 0F, 0F, 0F)
     private lateinit var cameraControls: CameraControl
-    val barcodeResultSingle= MutableLiveData<Barcode>()
-    val textResult=MutableLiveData<Text>()
-    val multipleBarcodes= MutableLiveData<MutableList<Barcode>>()
-    val onSomethingDetected=MutableLiveData<MutableList<Barcode>>()
-    val testBarcodes= mutableListOf<Barcode>()
-
+    val barcodeResultSingle = MutableLiveData<Barcode>()
+    val textResult = MutableLiveData<Text>()
+    val multipleBarcodes = MutableLiveData<MutableList<Barcode>>()
+    val onSomethingDetected = MutableLiveData<MutableList<Barcode>>()
+    val testBarcodes = mutableListOf<Barcode>()
 
 
     fun startScanning(viewType: ViewType, scanType: ScanType) {
-        selectedViewType=viewType
+        selectedViewType = viewType
 
 
         // design work
@@ -93,106 +94,101 @@ class CustomScannerView(context: Context,
             .build()
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        if(viewType==ViewType.RECTANGLE){
+        if (viewType == ViewType.RECTANGLE) {
             rectangleView.post {
                 rectangleView.setRectangleViewFinder()
             }
 
-            squareView.post{
+            squareView.post {
                 squareView.setSquareViewFinder()
             }
             addView(rectangleView)
             addView(squareView)
-            squareView.visibility=View.GONE
-            rectangleView.visibility=View.VISIBLE
-            initiateCamera(viewType,scanType)
-        }
-        else if(viewType==ViewType.SQUARE){
+            squareView.visibility = View.GONE
+            rectangleView.visibility = View.VISIBLE
+            initiateCamera(viewType, scanType)
+        } else if (viewType == ViewType.SQUARE) {
             rectangleView.post {
                 rectangleView.setRectangleViewFinder()
             }
 
-            squareView.post{
+            squareView.post {
                 squareView.setSquareViewFinder()
             }
             addView(rectangleView)
             addView(squareView)
-            squareView.visibility=View.VISIBLE
-            rectangleView.visibility=View.GONE
-            initiateCamera(viewType,scanType)
-        }
-        else if (viewType == ViewType.FULLSCRREN) {
+            squareView.visibility = View.VISIBLE
+            rectangleView.visibility = View.GONE
+            initiateCamera(viewType, scanType)
+        } else if (viewType == ViewType.FULLSCRREN) {
             rectangleView.visibility = GONE
             squareView.visibility = GONE
-            if(scanType== ScanType.FULL){
-                initiateCamera(viewType,scanType)
-            }
-            else{
-                initiateCamera(viewType,scanType)
+            if (scanType == ScanType.FULL) {
+                initiateCamera(viewType, scanType)
+            } else {
+                initiateCamera(viewType, scanType)
             }
 
         }
 
     }
 
-    private fun initiateCamera(viewType:ViewType,scanType: ScanType) {
+    private fun initiateCamera(viewType: ViewType, scanType: ScanType) {
 
 
-        if(viewType== ViewType.RECTANGLE){
-            val overlayWidth=width.toFloat()
-            val overlayHeight=height.toFloat()
+        if (viewType == ViewType.RECTANGLE) {
+            val overlayWidth = width.toFloat()
+            val overlayHeight = height.toFloat()
             val boxWidth = overlayWidth * 75 / 100
             val boxHeight = overlayHeight * 20 / 100
             val cx = overlayWidth / 2
             val cy = overlayHeight / 2
-            boxSides.boxLeftSide=cx - boxWidth / 2
-            boxSides.boxTopSide=cy - boxHeight / 1.5f
-            boxSides.boxRightSide=cx + boxWidth / 2
-            boxSides.boxBottomSide=cy + boxHeight / 4.5f
-        }
-        else if(viewType== ViewType.SQUARE){
-            val overlayWidth=width.toFloat()
-            val overlayHeight=height.toFloat()
+            boxSides.boxLeftSide = cx - boxWidth / 2
+            boxSides.boxTopSide = cy - boxHeight / 1.5f
+            boxSides.boxRightSide = cx + boxWidth / 2
+            boxSides.boxBottomSide = cy + boxHeight / 4.5f
+        } else if (viewType == ViewType.SQUARE) {
+            val overlayWidth = width.toFloat()
+            val overlayHeight = height.toFloat()
             val boxWidth = overlayWidth * 62 / 100
             val boxHeight = overlayHeight * 28 / 100
             val cx = overlayWidth / 2
             val cy = overlayHeight / 2
-            boxSides.boxLeftSide=cx - boxWidth / 2
-            boxSides.boxTopSide=cy - boxHeight / 1.5f
-            boxSides.boxRightSide=cx + boxWidth / 2
-            boxSides.boxBottomSide=cy + boxHeight / 4.5f
+            boxSides.boxLeftSide = cx - boxWidth / 2
+            boxSides.boxTopSide = cy - boxHeight / 1.5f
+            boxSides.boxRightSide = cx + boxWidth / 2
+            boxSides.boxBottomSide = cy + boxHeight / 4.5f
         }
 
 
 
-        cameraSelector= CameraSelector.Builder()
+        cameraSelector = CameraSelector.Builder()
             .requireLensFacing(CameraSelector.LENS_FACING_BACK)
             .build()
-        imageProcessor = BarcodeScannerProcessor(this,
+        imageProcessor = BarcodeScannerProcessor(
+            this,
             boxSides,
-            textCallback =this,this,this)
-        if(viewType==ViewType.RECTANGLE || viewType==ViewType.SQUARE){
-            cameraXViewModel = ViewModelProvider(context as ViewModelStoreOwner)[CameraXViewModel::class.java]
+            textCallback = this, this, this
+        ) { getScanningRect() }
+        if (viewType == ViewType.RECTANGLE || viewType == ViewType.SQUARE) {
+            cameraXViewModel =
+                ViewModelProvider(context as ViewModelStoreOwner)[CameraXViewModel::class.java]
             cameraXViewModel.processCameraProvider.observe(context as LifecycleOwner) { provider: ProcessCameraProvider? ->
                 cameraProvider = provider
                 bindAllCameraUseCases(cameraSelector)
             }
 
-        }
-        else{
+        } else {
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
                 bindPreview(cameraProvider, scanType)
             }, ContextCompat.getMainExecutor(context))
         }
-
-
-
-
-
     }
 
-
+    private fun getScanningRect(): RectF? {
+        return if (selectedViewType == ViewType.RECTANGLE) rectangleView.scanningBoxRect else squareView.scanningBoxRect
+    }
 
     @SuppressLint("RestrictedApi")
     private fun bindPreview(cameraProvider: ProcessCameraProvider, scanType: ScanType) {
@@ -204,24 +200,22 @@ class CustomScannerView(context: Context,
             .setTargetResolution(Size(width, height))
             .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
             .build()
-         if (scanType == ScanType.OCR) {
+        if (scanType == ScanType.OCR) {
             cameraProvider.unbindAll()
             imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
-             cameraProvider.bindToLifecycle(
-                 context as LifecycleOwner, cameraSelector, imageCapture,
-                 imageAnalysis, preview
-             )
+            cameraProvider.bindToLifecycle(
+                context as LifecycleOwner, cameraSelector, imageCapture,
+                imageAnalysis, preview
+            )
+        } else if (scanType == ScanType.FULL) {
+            imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
+            cameraControls = cameraProvider.bindToLifecycle(
+                context as LifecycleOwner,
+                cameraSelector,
+                preview,
+                imageAnalysis
+            ).cameraControl
         }
-        else if(scanType==ScanType.FULL){
-             imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
-             cameraControls=cameraProvider.bindToLifecycle(
-                 context as LifecycleOwner,
-                 cameraSelector,
-                 preview,
-                 imageAnalysis
-             ).cameraControl
-        }
-
 
 
     }
@@ -236,8 +230,12 @@ class CustomScannerView(context: Context,
             return
         }
         preview?.setSurfaceProvider(previewView.surfaceProvider)
-        cameraControls=
-            cameraProvider?.bindToLifecycle(context as LifecycleOwner, cameraSelector, preview)!!.cameraControl
+        cameraControls =
+            cameraProvider?.bindToLifecycle(
+                context as LifecycleOwner,
+                cameraSelector,
+                preview
+            )!!.cameraControl
 
     }
 
@@ -245,11 +243,11 @@ class CustomScannerView(context: Context,
     private fun bindAnalysisUseCase(cameraSelector: CameraSelector) {
         val builder = ImageAnalysis.Builder()
             .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetResolution(Size(width,height))
+            .setTargetResolution(Size(width, height))
         val imageAnalysis = builder.build()
         needUpdateGraphicOverlayImageSourceInfo = true
         imageAnalysis.setAnalyzer(
-           cameraExecutor!!
+            cameraExecutor!!
         ) { imageProxy: ImageProxy ->
 
             if (needUpdateGraphicOverlayImageSourceInfo) {
@@ -307,7 +305,6 @@ class CustomScannerView(context: Context,
     }
 
 
-
     override fun onOCRResponse(ocrResponse: OcrResponse?) {
 
     }
@@ -326,14 +323,17 @@ class CustomScannerView(context: Context,
             @SuppressLint("UnsafeOptInUsageError")
             override fun onCaptureSuccess(imageProxy: ImageProxy) {
                 var bitmap = imageToBitmap(imageProxy)
-                bitmap=fixOrientation(bitmap!!)
+                bitmap = fixOrientation(bitmap!!)
                 var string64: String
-                imageView= ImageView(context)
-                val params=LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                imageView.layoutParams=params
-                imageView.scaleType=ImageView.ScaleType.CENTER_CROP
+                imageView = ImageView(context)
+                val params = LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                imageView.layoutParams = params
+                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-                CoroutineScope(Dispatchers.Main).launch{
+                CoroutineScope(Dispatchers.Main).launch {
                     imageView.setImageBitmap(bitmap)
                     addView(imageView)
                 }
@@ -352,6 +352,7 @@ class CustomScannerView(context: Context,
             }
         })
     }
+
     private fun fixOrientation(mBitmap: Bitmap): Bitmap {
         return if (mBitmap.width > mBitmap.height) {
             val matrix = Matrix()
@@ -360,6 +361,7 @@ class CustomScannerView(context: Context,
         } else
             mBitmap
     }
+
     fun imageToBitmap(image: ImageProxy): Bitmap? {
         val buffer = image.planes[0].buffer
         val bytes = ByteArray(buffer.capacity()).also { buffer.get(it) }
@@ -400,7 +402,10 @@ class CustomScannerView(context: Context,
                 "tauqeer.sajid@yopmail.net"
             )
         ).enqueue(object : Callback<OcrResponse> {
-            override fun onResponse(call: retrofit2.Call<OcrResponse>, response: retrofit2.Response<OcrResponse>) {
+            override fun onResponse(
+                call: retrofit2.Call<OcrResponse>,
+                response: retrofit2.Response<OcrResponse>
+            ) {
                 onScanResult.onOCRResponse(response.body())
 
             }
