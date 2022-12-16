@@ -9,26 +9,18 @@ import com.example.customscannerview.R
 
 class SquareView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    var boxLeftSide=0F
-    var boxTopSide=0F
-    var boxRightSide=0F
-    var boxBottomSide=0F
+    var boxLeftSide = 0F
+    var boxTopSide = 0F
+    var boxRightSide = 0F
+    var boxBottomSide = 0F
 
     private val boxPaint: Paint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.barcode_reticle_stroke)
         style = Paint.Style.STROKE
-        isAntiAlias=true
-//        pathEffect=DashPathEffect(floatArrayOf(10f,10f),0f)
-        strokeWidth = context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_stroke_width).toFloat()
+        isAntiAlias = true
+        strokeWidth =
+            context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_stroke_width)
+                .toFloat()
     }
-    fun translateRect(rect: Rect) = RectF(
-        translateX(rect.left.toFloat()),
-        translateY(rect.top.toFloat()),
-        translateX(rect.right.toFloat()),
-        translateY(rect.bottom.toFloat())
-    )
-    fun translateX(x: Float): Float = x * 1.0f
-    fun translateY(y: Float): Float = y * 1.0f
 
     private val scrimPaint: Paint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.barcode_reticle_background)
@@ -47,21 +39,23 @@ class SquareView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     fun setSquareViewFinder() {
         val overlayWidth = width.toFloat()
         val overlayHeight = height.toFloat()
-        val boxWidth = overlayWidth * 62 / 100
-        val boxHeight = overlayHeight * 28 / 100
+        val boxWidth = overlayWidth * 72 / 100
+        val boxHeight = overlayHeight * 38 / 100
         val cx = overlayWidth / 2
         val cy = overlayHeight / 2
-        boxRect = RectF(cx-boxWidth/2,
-            cy-boxHeight/1.5f,
-            cx+boxWidth/2,
-            cy+boxHeight/4.5f
+        boxRect = RectF(
+            cx - boxWidth / 2,
+            cy - boxHeight / 1.5f,
+            cx + boxWidth / 2,
+            cy + boxHeight / 4.5f
         )
-        boxLeftSide=cx - boxWidth / 2
-        boxTopSide=cy - boxHeight / 1.5f
-        boxRightSide=cx + boxWidth / 2
-        boxBottomSide=cy + boxHeight / 4.5f
+        boxLeftSide = cx - boxWidth / 2
+        boxTopSide = cy - boxHeight / 1.5f
+        boxRightSide = cx + boxWidth / 2
+        boxBottomSide = cy + boxHeight / 4.5f
         invalidate()
     }
+
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         boxRect?.let {
@@ -73,64 +67,9 @@ class SquareView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             canvas.drawRoundRect(it, boxCornerRadius, boxCornerRadius, eraserPaint)
             eraserPaint.style = Paint.Style.STROKE
             canvas.drawRoundRect(it, boxCornerRadius, boxCornerRadius, eraserPaint)
-            // Draws the box.
-            canvas.drawRoundRect(it, boxCornerRadius, boxCornerRadius, boxPaint)
-            drawSquareBarView(canvas)
             scanningBoxRect = it
 
         }
-    }
-
-    fun drawSquareBarView(canvas: Canvas) {
-        val paint = Paint()
-        paint.color = Color.WHITE
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth =8f
-        paint.isAntiAlias = true
-
-        val overlayWidth = width.toFloat()
-        val overlayHeight = height.toFloat()
-        val boxWidth = overlayWidth * 62 / 100
-        val boxHeight = overlayHeight * 28 / 100
-        val cx = overlayWidth / 2
-        val cy = overlayHeight / 2
-
-        // Adjust according to your requirements..
-        val length = canvas.width * 0.05f
-        val corner = length * 0.05f
-        val left = cx-boxWidth/2
-        val top = cy-boxHeight/1.5f
-        val right = cx+boxWidth/2
-        val bottom = cy+boxHeight/4.5f
-
-        val path = Path()
-
-        // Top-Left corner..
-        path.moveTo(left, top + length)
-        path.lineTo(left, top + corner)
-        path.cubicTo(left, top + corner, left, top, left + corner, top)
-        path.lineTo(left + length, top)
-
-        // Top-Right corner..
-        path.moveTo(right - length, top.toFloat())
-        path.lineTo(right - corner, top.toFloat())
-        path.cubicTo(right - corner, top.toFloat(), right.toFloat(), top.toFloat(), right.toFloat(), top + corner)
-        path.lineTo(right.toFloat(), top + length)
-
-        // Bottom-Right corner..
-        path.moveTo(right.toFloat(), bottom - length)
-        path.lineTo(right.toFloat(), bottom - corner)
-        path.cubicTo(right.toFloat(), bottom - corner, right.toFloat(), bottom.toFloat(), right - corner, bottom.toFloat())
-        path.lineTo(right - length, bottom.toFloat())
-
-        // Bottom-Left corner..
-        path.moveTo(left + length, bottom.toFloat())
-        path.lineTo(left + corner, bottom.toFloat())
-        path.cubicTo(left + corner, bottom.toFloat(), left.toFloat(), bottom.toFloat(), left.toFloat(), bottom - corner)
-        path.lineTo(left.toFloat(), bottom - length)
-
-        // Draw path..
-        canvas.drawPath(path, paint)
     }
 
 
