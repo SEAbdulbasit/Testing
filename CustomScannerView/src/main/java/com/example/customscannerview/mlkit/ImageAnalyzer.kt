@@ -22,34 +22,27 @@ class ImageAnalyzer(
     @ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
 
-
         val mediaImage = imageProxy.image
-
-
         if (mediaImage != null) {
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             val scanner = BarcodeScanning.getClient()
             //
             isScanning = true
 
-            textDetector.process(image)
-                .addOnSuccessListener {
-                    onScanResult?.onSomeTextDetected(it)
-                }
+            textDetector.process(image).addOnSuccessListener {
+                onScanResult?.onSomeTextDetected(it)
+            }
 
-            scanner.process(image)
-                .addOnSuccessListener { barcodes ->
-                    onScanResult?.onMultiBarcodesDetected(barcodes)
-                    isScanning = false
-                    imageProxy.close()
-                }
-                .addOnCompleteListener {
-                    onScanResult?.onViewDetected(it.result)
-                    imageProxy.close()
-                }
-                .addOnFailureListener{
-                    imageProxy.close()
-                }
+            scanner.process(image).addOnSuccessListener { barcodes ->
+                onScanResult?.onMultiBarcodesDetected(barcodes)
+                isScanning = false
+                imageProxy.close()
+            }.addOnCompleteListener {
+                onScanResult?.onViewDetected(it.result)
+                imageProxy.close()
+            }.addOnFailureListener {
+                imageProxy.close()
+            }
 
         }
 

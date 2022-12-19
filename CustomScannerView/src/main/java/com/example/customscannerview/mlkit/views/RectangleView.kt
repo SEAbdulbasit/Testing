@@ -16,20 +16,10 @@ import com.example.customscannerview.R
 
 class RectangleView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    var mainCanvas: Canvas? = null
-
     var boxLeftSide = 0F
     var boxTopSide = 0F
     var boxRightSide = 0F
     var boxBottomSide = 0F
-    private val boxPaint: Paint = Paint().apply {
-        style = Paint.Style.STROKE
-        isAntiAlias = true
-        strokeWidth =
-            context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_stroke_width)
-                .toFloat()
-    }
-
 
     private val scrimPaint: Paint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.barcode_reticle_background)

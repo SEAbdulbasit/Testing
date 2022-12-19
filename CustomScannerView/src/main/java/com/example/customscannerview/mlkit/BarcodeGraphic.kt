@@ -11,11 +11,8 @@ import com.google.mlkit.vision.barcode.common.Barcode
  * Graphic instance for rendering Barcode position and content information in an overlay view.
  */
 class BarcodeGraphic internal constructor(
-    overlay: GraphicOverlay?,
-    private val barcode: Barcode?,
-    val invoke: RectF
-) :
-    Graphic(overlay) {
+    overlay: GraphicOverlay?, private val barcode: Barcode?, val invoke: RectF
+) : Graphic(overlay) {
     private val rectPaint: Paint = Paint()
     private val barcodePaint: Paint
     private val labelPaint: Paint
@@ -67,10 +64,7 @@ class BarcodeGraphic internal constructor(
             )
             // Renders the barcode at the bottom of the box.
             canvas.drawText(
-                barcode.displayValue!!,
-                rect.left,
-                rect.top - STROKE_WIDTH,
-                barcodePaint
+                barcode.displayValue!!, rect.left, rect.top - STROKE_WIDTH, barcodePaint
             )
         } else {
             isInsideScanningArea = false

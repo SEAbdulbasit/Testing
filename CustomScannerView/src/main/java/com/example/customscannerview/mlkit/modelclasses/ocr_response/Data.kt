@@ -1,5 +1,7 @@
 package com.example.scannerview.modelclasses.ocr_response
 
+import com.example.customscannerview.mlkit.modelclasses.ocr_response.Output
+
 data class Data(
     val call_type: String,
     val confVersion: String,

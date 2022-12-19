@@ -31,12 +31,14 @@ abstract class VisionProcessorBase<T> : VisionImageProcessor {
     // To keep the latest images and its metadata.
     @GuardedBy("this")
     private var latestImage: ByteBuffer? = null
+
     @GuardedBy("this")
     private var latestImageMetaData: FrameMetadata? = null
 
     // To keep the images and metadata in process.
     @GuardedBy("this")
     private var processingImage: ByteBuffer? = null
+
     @GuardedBy("this")
     private var processingMetaData: FrameMetadata? = null
 
@@ -49,11 +51,10 @@ abstract class VisionProcessorBase<T> : VisionImageProcessor {
 
         if (isMlImageEnabled(graphicOverlay.context)) {
             val mlImage =
-                MediaMlImageBuilder(image.image!!).setRotation(image.imageInfo.rotationDegrees).build()
+                MediaMlImageBuilder(image.image!!).setRotation(image.imageInfo.rotationDegrees)
+                    .build()
             requestDetectInImage(
-                mlImage,
-                graphicOverlay,
-                bitmap
+                mlImage, graphicOverlay, bitmap
             )
                 // When the image is from CameraX analysis use case, must call image.close() on received
                 // images when finished using them. Otherwise, new images may not be received or the camera
@@ -77,40 +78,33 @@ abstract class VisionProcessorBase<T> : VisionImageProcessor {
     }
 
     private fun requestDetectInImage(
-        image: InputImage,
-        graphicOverlay: GraphicOverlay,
-        originalCameraImage: Bitmap?
+        image: InputImage, graphicOverlay: GraphicOverlay, originalCameraImage: Bitmap?
     ): Task<T> {
         return setUpListener(detectInImage(image), graphicOverlay, originalCameraImage)
     }
+
     private fun requestDetectInImage(
-        image: MlImage,
-        graphicOverlay: GraphicOverlay,
-        originalCameraImage: Bitmap?
+        image: MlImage, graphicOverlay: GraphicOverlay, originalCameraImage: Bitmap?
     ): Task<T> {
         return setUpListener(detectInImage(image), graphicOverlay, originalCameraImage)
     }
-    
+
 
     private fun setUpListener(
-        task: Task<T>,
-        graphicOverlay: GraphicOverlay,
-        originalCameraImage: Bitmap?
+        task: Task<T>, graphicOverlay: GraphicOverlay, originalCameraImage: Bitmap?
     ): Task<T> {
-        return task
-            .addOnSuccessListener(executor) { results: T ->
-                graphicOverlay.clear()
-                if (originalCameraImage != null) {
-                    graphicOverlay.add(CameraImageGraphic(graphicOverlay, originalCameraImage))
-                }
-                this@VisionProcessorBase.onSuccess(results, graphicOverlay)
-                graphicOverlay.postInvalidate()
+        return task.addOnSuccessListener(executor) { results: T ->
+            graphicOverlay.clear()
+            if (originalCameraImage != null) {
+                graphicOverlay.add(CameraImageGraphic(graphicOverlay, originalCameraImage))
             }
-            .addOnFailureListener(executor) { e: Exception ->
-                graphicOverlay.clear()
-                graphicOverlay.postInvalidate()
-                this@VisionProcessorBase.onFailure(e)
-            }
+            this@VisionProcessorBase.onSuccess(results, graphicOverlay)
+            graphicOverlay.postInvalidate()
+        }.addOnFailureListener(executor) { e: Exception ->
+            graphicOverlay.clear()
+            graphicOverlay.postInvalidate()
+            this@VisionProcessorBase.onFailure(e)
+        }
     }
 
     override fun stop() {

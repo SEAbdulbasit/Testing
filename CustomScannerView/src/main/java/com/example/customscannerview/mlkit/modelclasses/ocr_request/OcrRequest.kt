@@ -1,4 +1,6 @@
-package com.example.scannerview.modelclasses.ocr_request
+package com.example.customscannerview.mlkit.modelclasses.ocr_request
+
+import com.example.scannerview.modelclasses.ocr_request.Barcode
 
 data class OcrRequest(
     val barcode: Barcode,
@@ -13,4 +15,4 @@ data class OcrRequest(
     val scanOut: Boolean,
     val scanTime: String,
     val userEmail: String
-)
+) : OCRRequestParent

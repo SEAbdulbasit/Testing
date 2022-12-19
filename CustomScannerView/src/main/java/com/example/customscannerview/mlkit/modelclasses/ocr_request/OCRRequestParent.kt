@@ -1,0 +1,3 @@
+package com.example.customscannerview.mlkit.modelclasses.ocr_request
+
+sealed interface OCRRequestParent

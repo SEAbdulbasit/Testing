@@ -24,9 +24,12 @@ import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.example.customscannerview.mlkit.modelclasses.BoxSides
+import com.example.customscannerview.mlkit.modelclasses.ocr_request.BarcodeX
+import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRQARequest
+import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRRequestParent
 import com.example.scannerview.modelclasses.ocr_request.Frame
-import com.example.scannerview.modelclasses.ocr_request.OcrRequest
-import com.example.scannerview.modelclasses.ocr_response.OcrResponse
+import com.example.customscannerview.mlkit.modelclasses.ocr_request.OcrRequest
+import com.example.customscannerview.mlkit.modelclasses.ocr_response.OCRResponseParent
 import com.example.customscannerview.mlkit.service.OcrApiService
 import com.example.customscannerview.mlkit.service.ServiceBuilder
 import com.google.common.util.concurrent.ListenableFuture
@@ -34,20 +37,17 @@ import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.text.Text
 import kotlinx.coroutines.*
-import retrofit2.Callback
 import java.io.ByteArrayOutputStream
+import java.lang.Exception
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
 class CustomScannerView(
-    context: Context,
-    val attrs: AttributeSet?
-) :
-    FrameLayout(context, attrs),
-    CameraXBarcodeCallback,
-    CameraXTextCallback,
+    context: Context, private val attrs: AttributeSet?
+) : FrameLayout(context, attrs), CameraXBarcodeCallback, CameraXTextCallback,
     CameraXMultiBarcodeCallback, OnScanResult {
+
     private lateinit var imageCapture: ImageCapture
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
         ProcessCameraProvider.getInstance(context)
@@ -90,8 +90,7 @@ class CustomScannerView(
 
         graphicOverlay = GraphicOverlay(context, attrs)
         addView(graphicOverlay)
-        imageCapture = ImageCapture.Builder()
-            .build()
+        imageCapture = ImageCapture.Builder().build()
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         if (viewType == ViewType.RECTANGLE) {
@@ -161,15 +160,14 @@ class CustomScannerView(
         }
 
 
+        cameraSelector =
+            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
 
-        cameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
-        imageProcessor = BarcodeScannerProcessor(
-            this,
-            boxSides,
-            textCallback = this, this, this
-        ) { getScanningRect() }
+        imageProcessor = BarcodeScannerProcessor(callback = this,
+            textCallback = this,
+            somethingDetected = this,
+            getRectCallback = { getScanningRect() })
+
         if (viewType == ViewType.RECTANGLE || viewType == ViewType.SQUARE) {
             cameraXViewModel =
                 ViewModelProvider(context as ViewModelStoreOwner)[CameraXViewModel::class.java]
@@ -196,31 +194,25 @@ class CustomScannerView(
         removeAllViews()
         addView(previewView)
         preview?.setSurfaceProvider(previewView.surfaceProvider)
-        val imageAnalysis = ImageAnalysis.Builder()
-            .setTargetResolution(Size(width, height))
-            .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
-            .build()
+        val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(width, height))
+            .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST).build()
         if (scanType == ScanType.OCR) {
             cameraProvider.unbindAll()
             imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
             cameraProvider.bindToLifecycle(
-                context as LifecycleOwner, cameraSelector, imageCapture,
-                imageAnalysis, preview
+                context as LifecycleOwner, cameraSelector, imageCapture, imageAnalysis, preview
             )
         } else if (scanType == ScanType.FULL) {
             imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
             cameraControls = cameraProvider.bindToLifecycle(
-                context as LifecycleOwner,
-                cameraSelector,
-                preview,
-                imageAnalysis
+                context as LifecycleOwner, cameraSelector, preview, imageAnalysis
             ).cameraControl
         }
 
 
     }
 
-    fun bindAllCameraUseCases(cameraSelector: CameraSelector) {
+    private fun bindAllCameraUseCases(cameraSelector: CameraSelector) {
         bindPreviewUseCase(cameraSelector)
         bindAnalysisUseCase(cameraSelector)
     }
@@ -230,19 +222,15 @@ class CustomScannerView(
             return
         }
         preview?.setSurfaceProvider(previewView.surfaceProvider)
-        cameraControls =
-            cameraProvider?.bindToLifecycle(
-                context as LifecycleOwner,
-                cameraSelector,
-                preview
-            )!!.cameraControl
+        cameraControls = cameraProvider?.bindToLifecycle(
+            context as LifecycleOwner, cameraSelector, preview
+        )!!.cameraControl
 
     }
 
     @SuppressLint("RestrictedApi")
     private fun bindAnalysisUseCase(cameraSelector: CameraSelector) {
-        val builder = ImageAnalysis.Builder()
-            .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+        val builder = ImageAnalysis.Builder().setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
             .setTargetResolution(Size(width, height))
         val imageAnalysis = builder.build()
         needUpdateGraphicOverlayImageSourceInfo = true
@@ -305,7 +293,7 @@ class CustomScannerView(
     }
 
 
-    override fun onOCRResponse(ocrResponse: OcrResponse?) {
+    override fun onOCRResponse(ocrResponse: OCRResponseParent?) {
 
     }
 
@@ -327,8 +315,7 @@ class CustomScannerView(
                 var string64: String
                 imageView = ImageView(context)
                 val params = LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 imageView.layoutParams = params
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -358,8 +345,7 @@ class CustomScannerView(
             val matrix = Matrix()
             matrix.postRotate(90F)
             Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.width, mBitmap.height, matrix, true)
-        } else
-            mBitmap
+        } else mBitmap
     }
 
     fun imageToBitmap(image: ImageProxy): Bitmap? {
@@ -375,16 +361,44 @@ class CustomScannerView(
         return Base64.encodeToString(b, Base64.NO_WRAP)
     }
 
-    fun callOCR(onScanResult: OnScanResult, baseImage: String) {
-        val retrofit = ServiceBuilder.buildService(OcrApiService::class.java)
-        retrofit.analyseOCRR(
+    private val repository = Repository(ServiceBuilder.buildService(OcrApiService::class.java))
+    private val isQAVariant = true
+
+    suspend fun callOCR(onScanResult: OnScanResult, baseImage: String) {
+        try {
+            val response = repository.analyseOCRAsync(getOCRRequest(baseImage, isQAVariant)).await()
+            withContext(Dispatchers.Main) {
+                onScanResult.onOCRResponse(response)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            withContext(Dispatchers.Main) {
+                removeView(imageView)
+                onScanResult.onOCRResponseFailed(e)
+            }
+
+        }
+    }
+
+    private fun getOCRRequest(baseImage: String, isQAVariant: Boolean): OCRRequestParent {
+        return if (isQAVariant) {
+            OCRQARequest(
+                barcode = BarcodeX(listOf()),
+                callType = "scan",
+                extractTime = "2022-08-29T05:58:28.902Z",
+                image = baseImage,
+                orgUuid = "2473793",
+                platform = "API"
+            )
+
+        } else {
             OcrRequest(
                 com.example.scannerview.modelclasses.ocr_request.Barcode(
                     listOf(
                         listOf(
                             Frame(
-                                "",
-                                ""
+                                "", ""
                             )
                         )
                     )
@@ -401,20 +415,6 @@ class CustomScannerView(
                 "2022-08-29T05:58:28.902Z",
                 "tauqeer.sajid@yopmail.net"
             )
-        ).enqueue(object : Callback<OcrResponse> {
-            override fun onResponse(
-                call: retrofit2.Call<OcrResponse>,
-                response: retrofit2.Response<OcrResponse>
-            ) {
-                onScanResult.onOCRResponse(response.body())
-
-            }
-
-            override fun onFailure(call: retrofit2.Call<OcrResponse>, t: Throwable) {
-                removeView(imageView)
-                onScanResult.onOCRResponseFailed(t)
-
-            }
-        })
+        }
     }
 }
