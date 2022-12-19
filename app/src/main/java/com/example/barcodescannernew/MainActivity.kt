@@ -27,6 +27,8 @@ import com.example.barcodescannernew.databinding.ActivityMainBinding
 import com.example.barcodescannernew.databinding.BarcodeNotFoundViewBinding
 import com.example.barcodescannernew.databinding.ResponseViewBinding
 import com.example.barcodescannernew.model.BarcodeModel
+import com.example.barcodescannernew.utils.ONE_DIMENSIONAL_FORMATS
+import com.example.barcodescannernew.utils.TWO_DIMENSIONAL_FORMATS
 import com.example.barcodescannernew.utils.copyToClipboard
 import com.example.barcodescannernew.utils.getCarrierNameFromKey
 import com.example.barcodescannernew.utils.hide
@@ -89,23 +91,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
         }
         binding.customScannerView.barcodeResultSingle.observe(this, Observer { barCodeResult ->
 
-            val TWO_DIMENSIONAL_FORMATS = mutableListOf<Int>(
-                Barcode.FORMAT_QR_CODE
-            )
-            val ONE_DIMENSIONAL_FORMATS = mutableListOf<Int>(
-                Barcode.FORMAT_CODABAR,
-                Barcode.FORMAT_CODE_39,
-                Barcode.FORMAT_CODE_93,
-                Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_EAN_8,
-                Barcode.FORMAT_EAN_13,
-                Barcode.FORMAT_ITF,
-                Barcode.FORMAT_DATA_MATRIX,
-                Barcode.FORMAT_AZTEC,
-                Barcode.FORMAT_PDF417,
-                Barcode.FORMAT_UPC_A,
-                Barcode.FORMAT_UPC_E
-            )
+
             if (!doNotShowDialog) {
                 if (TWO_DIMENSIONAL_FORMATS.contains(barCodeResult.format)) {
                     if (binding.customScannerView.selectedViewType == ViewType.SQUARE) {
