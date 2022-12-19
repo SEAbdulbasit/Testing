@@ -177,23 +177,6 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             if (barcodes.isNotEmpty()) {
                 if (settingsFragment.findViewById<SwitchCompat>(R.id.btnSwitchSetting).isChecked) {
                     barcodes.forEach {
-                        val TWO_DIMENSIONAL_FORMATS = mutableListOf<Int>(
-                            Barcode.FORMAT_QR_CODE
-                        )
-                        val ONE_DIMENSIONAL_FORMATS = mutableListOf<Int>(
-                            Barcode.FORMAT_CODABAR,
-                            Barcode.FORMAT_CODE_39,
-                            Barcode.FORMAT_CODE_93,
-                            Barcode.FORMAT_CODE_128,
-                            Barcode.FORMAT_EAN_8,
-                            Barcode.FORMAT_EAN_13,
-                            Barcode.FORMAT_ITF,
-                            Barcode.FORMAT_DATA_MATRIX,
-                            Barcode.FORMAT_AZTEC,
-                            Barcode.FORMAT_PDF417,
-                            Barcode.FORMAT_UPC_A,
-                            Barcode.FORMAT_UPC_E
-                        )
                         if (TWO_DIMENSIONAL_FORMATS.contains(it.format) && binding.bottomNav.selectedItemId == R.id.qrCode) {
                             val inputString = it.displayValue.toString()
                             val re = Regex("[^A-Za-z0-9(@)><&/. -]")

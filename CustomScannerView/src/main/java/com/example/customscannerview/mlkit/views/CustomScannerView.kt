@@ -66,7 +66,6 @@ class CustomScannerView(
     private lateinit var previewView: PreviewView
     private lateinit var graphicOverlay: GraphicOverlay
     lateinit var selectedViewType: ViewType
-    private var boxSides = BoxSides(0F, 0F, 0F, 0F)
     private lateinit var cameraControls: CameraControl
     val barcodeResultSingle = MutableLiveData<Barcode>()
     val textResult = MutableLiveData<Text>()
@@ -133,33 +132,6 @@ class CustomScannerView(
     }
 
     private fun initiateCamera(viewType: ViewType, scanType: ScanType) {
-
-
-        if (viewType == ViewType.RECTANGLE) {
-            val overlayWidth = width.toFloat()
-            val overlayHeight = height.toFloat()
-            val boxWidth = overlayWidth * 75 / 100
-            val boxHeight = overlayHeight * 20 / 100
-            val cx = overlayWidth / 2
-            val cy = overlayHeight / 2
-            boxSides.boxLeftSide = cx - boxWidth / 2
-            boxSides.boxTopSide = cy - boxHeight / 1.5f
-            boxSides.boxRightSide = cx + boxWidth / 2
-            boxSides.boxBottomSide = cy + boxHeight / 4.5f
-        } else if (viewType == ViewType.SQUARE) {
-            val overlayWidth = width.toFloat()
-            val overlayHeight = height.toFloat()
-            val boxWidth = overlayWidth * 62 / 100
-            val boxHeight = overlayHeight * 28 / 100
-            val cx = overlayWidth / 2
-            val cy = overlayHeight / 2
-            boxSides.boxLeftSide = cx - boxWidth / 2
-            boxSides.boxTopSide = cy - boxHeight / 1.5f
-            boxSides.boxRightSide = cx + boxWidth / 2
-            boxSides.boxBottomSide = cy + boxHeight / 4.5f
-        }
-
-
         cameraSelector =
             CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
 

@@ -75,13 +75,13 @@ class MultiBarcodeFragment:DialogFragment() {
         adapter.setBarcodesList(barcodesList)
         recyclerView.adapter=adapter
         textCopyAll.setOnClickListener {
-            val list=adapter.barcodes.distinct()
-            if(list.isNotEmpty()){
-                var message=StringBuilder()
-                for(i in 0..list.size)
-                list.forEach {
-                    message.append("${it.value}\n")
-                }
+            val list = adapter.barcodes.distinct()
+            if (list.isNotEmpty()) {
+                var message = StringBuilder()
+                for (i in 0..list.size)
+                    list.forEach {
+                        message.append("${it.value}\n")
+                    }
                 requireActivity().copyToClipboard(message.toString())
                 Toast.makeText(requireContext(), "Copied!", Toast.LENGTH_SHORT).show()
             }
@@ -89,8 +89,8 @@ class MultiBarcodeFragment:DialogFragment() {
 
         }
         addIcon.setOnClickListener {
-            val string=inputBarcode.text.toString()
-            if(string.isNotEmpty()){
+            val string = inputBarcode.text.toString()
+            if (string.isNotEmpty()) {
                 adapter.barcodes.add(BarcodeModel(string))
                 adapter.notifyDataSetChanged()
                 inputBarcode.setText("")
