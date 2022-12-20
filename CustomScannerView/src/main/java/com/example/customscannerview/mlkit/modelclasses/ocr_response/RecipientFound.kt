@@ -3,11 +3,7 @@ package com.example.customscannerview.mlkit.modelclasses.ocr_response
 
 import com.google.gson.annotations.SerializedName
 
-data class SenderFound(
-    @SerializedName("businessName")
-    val businessName: String?,
-    @SerializedName("combinedInfo")
-    val combinedInfo: String?,
+data class RecipientFound(
     @SerializedName("name")
     val name: String?
 )

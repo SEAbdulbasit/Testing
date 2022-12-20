@@ -1,6 +1,8 @@
-package com.example.customscannerview.mlkit.modelclasses.ocr_response
+package com.example.customscannerview.mlkit.modelclasses.ocr_response_demo
 
 
+import com.example.customscannerview.mlkit.modelclasses.ocr_response.CourierInfo
+import com.example.customscannerview.mlkit.modelclasses.ocr_response.ItemInfo
 import com.google.gson.annotations.SerializedName
 
 data class ScanOutput(
@@ -9,11 +11,9 @@ data class ScanOutput(
     @SerializedName("courierInfo")
     val courierInfo: CourierInfo?,
     @SerializedName("data")
-    val `data`: DataX?,
+    val data: Data?,
     @SerializedName("itemInfo")
     val itemInfo: ItemInfo?,
     @SerializedName("packageId")
-    val packageId: String?,
-    @SerializedName("success")
-    val success: String?,
+    val packageId: String?
 )

@@ -1,4 +1,4 @@
-package com.example.scannerview.modelclasses.ocr_response
+package com.example.customscannerview.mlkit.modelclasses.ocr_response
 
 data class TimeLogs(
     val qasid_run_time_2: String,

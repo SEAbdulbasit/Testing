@@ -23,13 +23,11 @@ import com.example.customscannerview.mlkit.*
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
-import com.example.customscannerview.mlkit.modelclasses.BoxSides
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.BarcodeX
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRQARequest
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRRequestParent
-import com.example.scannerview.modelclasses.ocr_request.Frame
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OcrRequest
-import com.example.customscannerview.mlkit.modelclasses.ocr_response.OCRResponseParent
+import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
 import com.example.customscannerview.mlkit.service.OcrApiService
 import com.example.customscannerview.mlkit.service.ServiceBuilder
 import com.google.common.util.concurrent.ListenableFuture
@@ -338,7 +336,11 @@ class CustomScannerView(
 
     suspend fun callOCR(onScanResult: OnScanResult, baseImage: String) {
         try {
-            val response = repository.analyseOCRAsync(getOCRRequest(baseImage, isQAVariant)).await()
+            val response = repository.analyseOCRAsync(
+                getOCRRequest(
+                    multipleBarcodes.value ?: emptyList(), baseImage, isQAVariant
+                )
+            )
             withContext(Dispatchers.Main) {
                 onScanResult.onOCRResponse(response)
             }
@@ -353,40 +355,23 @@ class CustomScannerView(
         }
     }
 
-    private fun getOCRRequest(baseImage: String, isQAVariant: Boolean): OCRRequestParent {
+    private fun getOCRRequest(
+        barcodesList: List<Barcode>, baseImage: String, isQAVariant: Boolean
+    ): OCRRequestParent {
         return if (isQAVariant) {
             OCRQARequest(
                 barcode = BarcodeX(listOf()),
-                callType = "scan",
+                callType = "extract",
                 extractTime = "2022-08-29T05:58:28.902Z",
                 image = baseImage,
-                orgUuid = "2473793",
+                orgUuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                 platform = "API"
             )
 
         } else {
-            OcrRequest(
-                com.example.scannerview.modelclasses.ocr_request.Barcode(
-                    listOf(
-                        listOf(
-                            Frame(
-                                "", ""
-                            )
-                        )
-                    )
-                ),
-                "scan",
-                "API",
-                baseImage,
-                false,
-                7140,
-                777644,
-                2473793,
-                "API",
-                false,
-                "2022-08-29T05:58:28.902Z",
-                "tauqeer.sajid@yopmail.net"
-            )
+            OcrRequest(image_url = "data:image/jpeg;base64,$baseImage",
+                type = "shipping_label",
+                barcode_values = barcodesList.map { it.displayValue!! })
         }
     }
 }

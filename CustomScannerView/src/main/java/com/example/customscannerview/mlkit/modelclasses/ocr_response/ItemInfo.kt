@@ -1,6 +1,11 @@
-package com.example.scannerview.modelclasses.ocr_response
+package com.example.customscannerview.mlkit.modelclasses.ocr_response
+
+
+import com.google.gson.annotations.SerializedName
 
 data class ItemInfo(
-    val po_number: String,
-    val ref_number: String
+    @SerializedName("poNumber")
+    val poNumber: String?,
+    @SerializedName("refNumber")
+    val refNumber: String?
 )

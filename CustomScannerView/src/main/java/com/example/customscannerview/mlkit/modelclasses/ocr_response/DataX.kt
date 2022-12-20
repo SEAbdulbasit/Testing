@@ -1,9 +1,19 @@
-package com.example.scannerview.modelclasses.ocr_response
+package com.example.customscannerview.mlkit.modelclasses.ocr_response
+
+
+import com.google.gson.annotations.SerializedName
 
 data class DataX(
-    val businesses_found: List<Any>,
-    val members_found: List<Any>,
-    val non_members_found: List<NonMembersFound>,
-    val sender_found: List<SenderFound>,
+    @SerializedName("recipientFound")
+    val recipientFound: List<RecipientFound?>?,
+    @SerializedName("senderFound")
+    val senderFound: List<SenderFound?>?,
+    @SerializedName("businessesFound")
+    val businessesFound: List<Any>,
+    @SerializedName("membersFound")
+    val membersFound: List<Any>,
+    @SerializedName("nonMembersFound")
+    val nonMembersFound: List<NonMembersFound>,
+    @SerializedName("suggestions")
     val suggestions: List<Any>
 )

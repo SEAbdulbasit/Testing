@@ -1,13 +1,20 @@
 package com.example.customscannerview.mlkit.modelclasses.ocr_response
 
-import com.example.scannerview.modelclasses.ocr_response.ScanOutput
-import com.example.scannerview.modelclasses.ocr_response.TimeLogs
+
+import com.google.gson.annotations.SerializedName
 
 data class Output(
-    val blurr_value: Any,
+    @SerializedName("scanOutput")
+    val scanOutput: ScanOutput?,
+    @SerializedName("blurrValue")
+    val blurrValue: Any,
+    @SerializedName("duplicatePackageFlag")
     val duplicate_package_flag: Boolean,
-    val duplicate_packages: List<Any>,
+    @SerializedName("duplicatePackages")
+    val duplicatePackages: List<Any>,
+    @SerializedName("platform")
     val platform: String,
-    val scan_output: ScanOutput,
-    val time_logs: TimeLogs
+    @SerializedName("timeLogs")
+    val timeLogs: TimeLogs
+
 )

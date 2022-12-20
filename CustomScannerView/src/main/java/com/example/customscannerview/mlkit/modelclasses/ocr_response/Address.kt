@@ -1,6 +1,11 @@
-package com.example.scannerview.modelclasses.ocr_response
+package com.example.customscannerview.mlkit.modelclasses.ocr_response
+
+
+import com.google.gson.annotations.SerializedName
 
 data class Address(
-    val receiver_address: ReceiverAddress,
-    val sender_address: SenderAddress
+    @SerializedName("receiverAddress")
+    val receiverAddress: ReceiverAddress?,
+    @SerializedName("senderAddress")
+    val senderAddress: SenderAddress?
 )

@@ -1,4 +1,4 @@
-package com.example.scannerview.modelclasses.ocr_response
+package com.example.customscannerview.mlkit.modelclasses.ocr_response
 
 data class DuplicateUuidValidation(
     val duplicate_uuid_flag: Boolean,

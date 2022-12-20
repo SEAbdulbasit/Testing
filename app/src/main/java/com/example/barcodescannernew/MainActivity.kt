@@ -3,26 +3,31 @@ package com.example.barcodescannernew
 import android.Manifest
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
-import android.os.*
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import com.example.barcodescannernew.databinding.ActivityMainBinding
 import com.example.barcodescannernew.databinding.BarcodeNotFoundViewBinding
 import com.example.barcodescannernew.databinding.ResponseViewBinding
@@ -36,8 +41,9 @@ import com.example.barcodescannernew.utils.show
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
-import com.example.customscannerview.mlkit.modelclasses.ocr_response.OCRResponseParent
-import com.example.customscannerview.mlkit.modelclasses.ocr_response.OcrResponse
+import com.example.customscannerview.mlkit.modelclasses.OCRResponseDemo
+import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
+import com.example.customscannerview.mlkit.modelclasses.OcrResponse
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.text.Text
 import kotlinx.coroutines.CoroutineScope
@@ -89,7 +95,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             if (binding.progressBar.isVisible) binding.progressBar.visibility = View.GONE
             isManualModeActive = false
         }
-        binding.customScannerView.barcodeResultSingle.observe(this, Observer { barCodeResult ->
+        binding.customScannerView.barcodeResultSingle.observe(this) { barCodeResult ->
 
 
             if (!doNotShowDialog) {
@@ -122,32 +128,15 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 }
             }
 
-        })
-        binding.customScannerView.textResult.observe(this, Observer { text ->
+        }
+        binding.customScannerView.textResult.observe(this) { text ->
             if (text.textBlocks.isEmpty()) {
                 binding.textDetector.setImageResource(R.drawable.ic_text_inactive)
             } else {
                 binding.textDetector.setImageResource(R.drawable.ic_text_active)
             }
-        })
-        binding.customScannerView.onSomethingDetected.observe(this, Observer { barcodeList ->
-            val TWO_DIMENSIONAL_FORMATS = mutableListOf<Int>(
-                Barcode.FORMAT_QR_CODE
-            )
-            val ONE_DIMENSIONAL_FORMATS = mutableListOf<Int>(
-                Barcode.FORMAT_CODABAR,
-                Barcode.FORMAT_CODE_39,
-                Barcode.FORMAT_CODE_93,
-                Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_EAN_8,
-                Barcode.FORMAT_EAN_13,
-                Barcode.FORMAT_ITF,
-                Barcode.FORMAT_DATA_MATRIX,
-                Barcode.FORMAT_AZTEC,
-                Barcode.FORMAT_PDF417,
-                Barcode.FORMAT_UPC_A,
-                Barcode.FORMAT_UPC_E
-            )
+        }
+        binding.customScannerView.onSomethingDetected.observe(this) { barcodeList ->
             if (barcodeList.size == 0) {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(2000)
@@ -171,8 +160,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             }
             isResultEmpty = barcodeList.isEmpty()
 
-        })
-        binding.customScannerView.multipleBarcodes.observe(this, Observer { barcodes ->
+        }
+        binding.customScannerView.multipleBarcodes.observe(this) { barcodes ->
             barcodesListDetected.clear()
             if (barcodes.isNotEmpty()) {
                 if (settingsFragment.findViewById<SwitchCompat>(R.id.btnSwitchSetting).isChecked) {
@@ -222,7 +211,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
 
                 }
             }
-        })
+        }
 
     }
 
@@ -240,18 +229,16 @@ class MainActivity : AppCompatActivity(), OnScanResult {
         failureDialog.setView(v)
         failureDialog.setTitle("No $name Found")
         failureDialog.setMessage("Please capture photo when $name indicator is active or manually enter the code")
-        failureDialog.setButton(AlertDialog.BUTTON_NEGATIVE,
-            "OK",
-            object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface?, which: Int) {
-                    val code = v.findViewById<EditText>(R.id.inputValue).text.toString()
-                    doNotShowDialog = false
-                    mediaPlayer = MediaPlayer.create(applicationContext, R.raw.beep_sound)
-                    applicationContext.copyToClipboard(code)
-                    dialog?.dismiss()
-                }
-
-            })
+        failureDialog.setButton(
+            AlertDialog.BUTTON_NEGATIVE,
+            "OK"
+        ) { dialog, _ ->
+            val code = v.findViewById<EditText>(R.id.inputValue).text.toString()
+            doNotShowDialog = false
+            mediaPlayer = MediaPlayer.create(applicationContext, R.raw.beep_sound)
+            applicationContext.copyToClipboard(code)
+            dialog?.dismiss()
+        }
         failureDialog.setCanceledOnTouchOutside(true)
         failureDialog.setOnCancelListener {
             doNotShowDialog = false
@@ -293,14 +280,14 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             settingsFragment.show()
         }
         binding.flashIcon.setOnClickListener {
-            if (isFlashEnabled) {
+            isFlashEnabled = if (isFlashEnabled) {
                 binding.flashIcon.setImageResource(R.drawable.ic_flash_inactive)
                 binding.customScannerView.disableTorch()
-                isFlashEnabled = false
+                false
             } else {
                 binding.flashIcon.setImageResource(R.drawable.ic_flash_active)
                 binding.customScannerView.enableTorch()
-                isFlashEnabled = true
+                true
             }
         }
         binding.soundIcon.setOnClickListener {
@@ -467,25 +454,23 @@ class MainActivity : AppCompatActivity(), OnScanResult {
     private fun showDialog(message: String) {
         doNotShowDialog = true
         resultDialog.setMessage(message)
-        resultDialog.setButton(AlertDialog.BUTTON_POSITIVE,
-            "Copy",
-            object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface?, which: Int) {
-                    applicationContext.copyToClipboard(message)
-                    doNotShowDialog = false
-                    mediaPlayer = MediaPlayer.create(applicationContext, R.raw.beep_sound)
-                    dialog?.dismiss()
-                }
-            })
-        resultDialog.setButton(AlertDialog.BUTTON_NEGATIVE,
-            "Cancel",
-            object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface?, which: Int) {
-                    doNotShowDialog = false
-                    mediaPlayer = MediaPlayer.create(applicationContext, R.raw.beep_sound)
-                    dialog?.dismiss()
-                }
-            })
+        resultDialog.setButton(
+            AlertDialog.BUTTON_POSITIVE,
+            "Copy"
+        ) { dialog, _ ->
+            applicationContext.copyToClipboard(message)
+            doNotShowDialog = false
+            mediaPlayer = MediaPlayer.create(applicationContext, R.raw.beep_sound)
+            dialog?.dismiss()
+        }
+        resultDialog.setButton(
+            AlertDialog.BUTTON_NEGATIVE,
+            "Cancel"
+        ) { dialog, _ ->
+            doNotShowDialog = false
+            mediaPlayer = MediaPlayer.create(applicationContext, R.raw.beep_sound)
+            dialog?.dismiss()
+        }
         resultDialog.show()
 
         if (isSoundEnabled) {
@@ -616,9 +601,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 if (isChecked) {/*binding.customScannerView.startScanning(ViewType.FULLSCRREN,ScanType.FULL)
                     binding.btnSwitch.visibility=View.GONE*/
                     binding.btnSwitch.check(R.id.radioManual)
-                    if (binding.bottomNav.selectedItemId == R.id.ocr) {
-
-                    } else {
+                    if (binding.bottomNav.selectedItemId != R.id.ocr) {
                         binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.FULL)
                         binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.FULL)
                         binding.btnSwitch.visibility = View.GONE
@@ -664,8 +647,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
         responseBinding.progressBar.visibility = View.INVISIBLE
         responseBinding.textScanning.text = "Scanned"
         if (ocrResponse.data != null) {
-            val trackingNo = ocrResponse.data.output.scan_output.courier_info.tracking_no
-            if (trackingNo != null && trackingNo.isNotEmpty()) {
+            val trackingNo = ocrResponse.data?.output?.scanOutput?.courierInfo?.trackingNo
+            if (!trackingNo.isNullOrEmpty()) {
                 responseBinding.trackingNo.text = trackingNo
                 responseBinding.textTrackingNo.visibility = View.VISIBLE
                 responseBinding.trackingNo.visibility = View.VISIBLE
@@ -673,8 +656,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textTrackingNo.visibility = View.GONE
                 responseBinding.trackingNo.visibility = View.GONE
             }
-            var courier = ocrResponse.data.output.scan_output.courier_info.courier_name
-            if (courier != null && courier.isNotEmpty()) {
+            val courier = ocrResponse.data?.output?.scanOutput?.courierInfo?.courierName
+            if (!courier.isNullOrEmpty()) {
                 val name = getCarrierNameFromKey(applicationContext, courier)
                 responseBinding.courier.text = name
                 responseBinding.textCourier.visibility = View.VISIBLE
@@ -683,8 +666,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textCourier.visibility = View.GONE
                 responseBinding.courier.visibility = View.GONE
             }
-            val weight = ocrResponse.data.output.scan_output.courier_info.weight_info
-            if (weight != null && weight.isNotEmpty()) {
+            val weight = ocrResponse.data?.output?.scanOutput?.courierInfo?.weightInfo
+            if (!weight.isNullOrEmpty()) {
                 responseBinding.weight.text = weight
                 responseBinding.textWeight.visibility = View.VISIBLE
                 responseBinding.weight.visibility = View.VISIBLE
@@ -692,8 +675,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textWeight.visibility = View.GONE
                 responseBinding.weight.visibility = View.GONE
             }
-            val receiverName = ocrResponse.data.output.scan_output.address.receiver_address.name
-            if (receiverName != null && receiverName.isNotEmpty()) {
+            val receiverName = ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.name
+            if (!receiverName.isNullOrEmpty()) {
                 val rName = capitalize(receiverName)
                 responseBinding.receiverName.text = rName
                 responseBinding.textReceiverName.visibility = View.VISIBLE
@@ -703,8 +686,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.receiverName.visibility = View.GONE
             }
             val receiverStreet =
-                ocrResponse.data.output.scan_output.address.receiver_address.address_line_1
-            if (receiverStreet != null && receiverStreet.isNotEmpty()) {
+                ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.addressLine1
+            if (!receiverStreet.isNullOrEmpty()) {
                 responseBinding.receiverStreet.text = receiverStreet
                 responseBinding.textReceiverStreet.visibility = View.VISIBLE
                 responseBinding.receiverStreet.visibility = View.VISIBLE
@@ -712,8 +695,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textReceiverStreet.visibility = View.GONE
                 responseBinding.receiverStreet.visibility = View.GONE
             }
-            val receiverCity = ocrResponse.data.output.scan_output.address.receiver_address.city
-            if (receiverCity != null && receiverCity.isNotEmpty()) {
+            val receiverCity = ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.city
+            if (!receiverCity.isNullOrEmpty()) {
                 responseBinding.receiverCity.text = receiverCity
                 responseBinding.textReceiverCity.visibility = View.VISIBLE
                 responseBinding.receiverCity.visibility = View.VISIBLE
@@ -721,8 +704,9 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textReceiverCity.visibility = View.GONE
                 responseBinding.receiverCity.visibility = View.GONE
             }
-            val receiverState = ocrResponse.data.output.scan_output.address.receiver_address.state
-            if (receiverState != null && receiverState.isNotEmpty()) {
+            val receiverState =
+                ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.state
+            if (!receiverState.isNullOrEmpty()) {
                 responseBinding.receiverState.text = receiverState
                 responseBinding.textReceiverState.visibility = View.VISIBLE
                 responseBinding.receiverState.visibility = View.VISIBLE
@@ -730,8 +714,9 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textReceiverState.visibility = View.GONE
                 responseBinding.receiverState.visibility = View.GONE
             }
-            val receiverZip = ocrResponse.data.output.scan_output.address.receiver_address.zipcode
-            if (receiverZip != null && receiverZip.isNotEmpty()) {
+            val receiverZip =
+                ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.zipcode
+            if (!receiverZip.isNullOrEmpty()) {
                 responseBinding.receiverZipcode.text = receiverZip
                 responseBinding.textReceiverZipCode.visibility = View.VISIBLE
                 responseBinding.receiverZipcode.visibility = View.VISIBLE
@@ -740,8 +725,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.receiverZipcode.visibility = View.GONE
             }
             val receiverAddress =
-                ocrResponse.data.output.scan_output.address.receiver_address.complete_address
-            if (receiverAddress != null && receiverAddress.isNotEmpty()) {
+                ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.completeAddress
+            if (!receiverAddress.isNullOrEmpty()) {
                 responseBinding.receiverAddress.text = receiverAddress
                 responseBinding.textReceiverAddress.visibility = View.VISIBLE
                 responseBinding.receiverAddress.visibility = View.VISIBLE
@@ -750,9 +735,9 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.receiverAddress.visibility = View.GONE
             }
 
-            val senderFound = ocrResponse.data.output.scan_output.data.sender_found
-            val senderName = senderFound[0].combined_info
-            if (senderName != null && senderName.isNotEmpty()) {
+            val senderFound = ocrResponse.data?.output?.scanOutput?.data?.senderFound ?: emptyList()
+            val senderName = senderFound.firstOrNull()?.combinedInfo
+            if (!senderName.isNullOrEmpty()) {
                 val sName = capitalize(senderName)
                 responseBinding.senderName.text = sName
                 responseBinding.senderName.visibility = View.VISIBLE
@@ -762,8 +747,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textSenderName.visibility = View.GONE
             }
             val senderStreet =
-                ocrResponse.data.output.scan_output.address.sender_address.address_line_1
-            if (senderStreet != null && senderStreet.isNotEmpty()) {
+                ocrResponse.data?.output?.scanOutput?.address?.senderAddress?.addressLine1
+            if (!senderStreet.isNullOrEmpty()) {
                 responseBinding.senderStreet.text = senderStreet
                 responseBinding.textSenderStreetAddress.visibility = View.VISIBLE
                 responseBinding.senderStreet.visibility = View.VISIBLE
@@ -771,8 +756,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textSenderStreetAddress.visibility = View.GONE
                 responseBinding.senderStreet.visibility = View.GONE
             }
-            val senderCity = ocrResponse.data.output.scan_output.address.sender_address.city
-            if (senderCity != null && senderCity.isNotEmpty()) {
+            val senderCity = ocrResponse.data?.output?.scanOutput?.address?.senderAddress?.city
+            if (!senderCity.isNullOrEmpty()) {
                 responseBinding.senderCity.text = senderCity
                 responseBinding.textSenderCity.visibility = View.VISIBLE
                 responseBinding.senderCity.visibility = View.VISIBLE
@@ -780,8 +765,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textSenderCity.visibility = View.GONE
                 responseBinding.senderCity.visibility = View.GONE
             }
-            val senderState = ocrResponse.data.output.scan_output.address.sender_address.state
-            if (senderState != null && senderState.isNotEmpty()) {
+            val senderState = ocrResponse.data?.output?.scanOutput?.address?.senderAddress?.state
+            if (!senderState.isNullOrEmpty()) {
                 responseBinding.senderState.text = senderState
                 responseBinding.textSenderStateAddress.visibility = View.VISIBLE
                 responseBinding.senderState.visibility = View.VISIBLE
@@ -789,8 +774,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textSenderStateAddress.visibility = View.GONE
                 responseBinding.senderState.visibility = View.GONE
             }
-            val senderZip = ocrResponse.data.output.scan_output.address.sender_address.zipcode
-            if (senderZip != null && senderZip.isNotEmpty()) {
+            val senderZip = ocrResponse.data?.output?.scanOutput?.address?.senderAddress?.zipcode
+            if (!senderZip.isNullOrEmpty()) {
                 responseBinding.senderZipcode.text = senderZip
                 responseBinding.textSenderZipcode.visibility = View.VISIBLE
                 responseBinding.senderZipcode.visibility = View.VISIBLE
@@ -799,8 +784,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.senderZipcode.visibility = View.GONE
             }
             val senderAddress =
-                ocrResponse.data.output.scan_output.address.sender_address.complete_address
-            if (senderAddress != null && senderAddress.isNotEmpty()) {
+                ocrResponse.data?.output?.scanOutput?.address?.senderAddress?.completeAddress
+            if (!senderAddress.isNullOrEmpty()) {
                 responseBinding.senderAddress.text = senderAddress
                 responseBinding.senderAddress.visibility = View.VISIBLE
                 responseBinding.textSenderAddress.visibility = View.VISIBLE
@@ -808,8 +793,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.senderAddress.visibility = View.GONE
                 responseBinding.textSenderAddress.visibility = View.GONE
             }
-            val poNo = ocrResponse.data.output.scan_output.item_info.po_number
-            if (poNo != null && poNo.isNotEmpty()) {
+            val poNo = ocrResponse.data?.output?.scanOutput?.itemInfo?.poNumber
+            if (!poNo.isNullOrEmpty()) {
                 responseBinding.poNo.text = poNo
                 responseBinding.textPO.visibility = View.VISIBLE
                 responseBinding.poNo.visibility = View.VISIBLE
@@ -817,30 +802,30 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textPO.visibility = View.GONE
                 responseBinding.poNo.visibility = View.GONE
             }
-            val presetLabels = ocrResponse?.data?.output?.scan_output?.courier_info?.preset_labels
+            val presetLabels = ocrResponse.data?.output?.scanOutput?.courierInfo?.presetLabels
             val dynamicExtracted =
-                ocrResponse?.data?.output?.scan_output?.courier_info?.dynamic_extracted_labels
+                ocrResponse.data?.output?.scanOutput?.courierInfo?.dynamicExtractedLabels
             val locationBased =
-                ocrResponse?.data?.output?.scan_output?.courier_info?.location_based_labels
-            if (presetLabels != null && presetLabels.isNotEmpty()) {
+                ocrResponse.data?.output?.scanOutput?.courierInfo?.locationBasedLabels
+            if (!presetLabels.isNullOrEmpty()) {
                 presetLabels.forEach { label ->
                     meta.add("$label ")
                 }
             }
-            if (dynamicExtracted != null && dynamicExtracted.isNotEmpty()) {
+            if (!dynamicExtracted.isNullOrEmpty()) {
 //                meta.add("")
                 dynamicExtracted.forEach { dynamicLabel ->
                     meta.add("$dynamicLabel ")
 //                    metaData.plus(dynamicLabel.toString()+" ")
                 }
             }
-            if (locationBased != null && locationBased.isNotEmpty()) {
+            if (!locationBased.isNullOrEmpty()) {
 //                meta.add("")
                 locationBased.forEach { locationLabel ->
                     meta.add("$locationLabel ")
                 }
             }
-            if (meta != null && meta.isNotEmpty()) {
+            if (meta.isNotEmpty()) {
                 responseBinding.textMetadata.visibility = View.VISIBLE
                 responseBinding.metadata.visibility = View.VISIBLE
                 meta.forEach { data ->
@@ -851,8 +836,8 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.metadata.visibility = View.GONE
             }
 
-            val refNo = ocrResponse.data.output.scan_output.item_info.ref_number
-            if (refNo != null && refNo.isNotEmpty()) {
+            val refNo = ocrResponse.data?.output?.scanOutput?.itemInfo?.refNumber
+            if (!refNo.isNullOrEmpty()) {
                 responseBinding.refNo.text = refNo
                 responseBinding.refNo.visibility = View.VISIBLE
                 responseBinding.textRefNo.visibility = View.VISIBLE
@@ -861,23 +846,23 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textRefNo.visibility = View.GONE
             }
 
-            if (trackingNo != null && trackingNo.isNotEmpty() || courier != null && courier.isNotEmpty() || weight != null && weight.isNotEmpty()) {
+            if (!trackingNo.isNullOrEmpty() || !courier.isNullOrEmpty() || !weight.isNullOrEmpty()) {
                 responseBinding.textPackageInfo.visibility = View.VISIBLE
             } else {
                 responseBinding.textPackageInfo.visibility = View.GONE
             }
 
-            if (receiverName != null && receiverName.isNotEmpty() || receiverStreet != null && receiverStreet.isNotEmpty() || receiverCity != null && receiverCity.isNotEmpty() || receiverState != null && receiverState.isNotEmpty() || receiverZip != null && receiverZip.isNotEmpty() || receiverAddress != null && receiverAddress.isNotEmpty()) {
+            if (!receiverName.isNullOrEmpty() || !receiverStreet.isNullOrEmpty() || !receiverCity.isNullOrEmpty() || !receiverState.isNullOrEmpty() || !receiverZip.isNullOrEmpty() || !receiverAddress.isNullOrEmpty()) {
                 responseBinding.textRecevierInfo.visibility = View.VISIBLE
             } else {
                 responseBinding.textRecevierInfo.visibility = View.GONE
             }
-            if (senderName != null && senderName.isNotEmpty() || senderStreet != null && senderStreet.isNotEmpty() || senderCity != null && senderCity.isNotEmpty() || senderState != null && senderState.isNotEmpty() || senderZip != null && senderZip.isNotEmpty() || senderAddress != null && senderAddress.isNotEmpty()) {
+            if (!senderName.isNullOrEmpty() || !senderStreet.isNullOrEmpty() || !senderCity.isNullOrEmpty() || !senderState.isNullOrEmpty() || !senderZip.isNullOrEmpty() || !senderAddress.isNullOrEmpty()) {
                 responseBinding.textSenderInfo.visibility = View.VISIBLE
             } else {
                 responseBinding.textSenderInfo.visibility = View.GONE
             }
-            if (refNo != null && refNo.isNotEmpty() || poNo != null && poNo.isNotEmpty()) {
+            if (!refNo.isNullOrEmpty() || !poNo.isNullOrEmpty()) {
                 responseBinding.textLogistics.visibility = View.VISIBLE
             } else {
                 responseBinding.textLogistics.visibility = View.GONE
@@ -913,7 +898,17 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 showOCRResult(ocrResponse)
             }
 
-            null -> {
+            is OCRResponseDemo -> {
+                responseBinding.progressBar.visibility = View.INVISIBLE
+                Toast.makeText(this, "I am here with Demo response", Toast.LENGTH_SHORT).show()
+            }
+
+            else -> {
+                Toast.makeText(this, "Something went wrong !", Toast.LENGTH_SHORT).show()
+                binding.progressBar.hide()
+                OCRDialog.dismiss()
+                binding.camIcon.isEnabled = true
+                Toast.makeText(this, "Something went wrong !", Toast.LENGTH_SHORT).show()
             }
         }
     }

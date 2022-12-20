@@ -1,18 +1,24 @@
-package com.example.scannerview.modelclasses.ocr_response
+package com.example.customscannerview.mlkit.modelclasses.ocr_response
+
+
+import com.google.gson.annotations.SerializedName
 
 data class CourierInfo(
-    val barcode_present: Boolean,
-    val courier_from_barcode: Boolean,
-    val courier_from_ocr: Boolean,
-    val courier_name: String,
-    val courier_name_detected: String,
-    val dynamic_extracted_labels: List<Any>,
-    val dynamic_labels: List<Any>,
-    val location_based_labels: List<Any>,
-    val miscellaneous: Miscellaneous,
-    val preset_labels: List<Any>,
-    val tracking_from_barcode: Boolean,
-    val tracking_from_ocr: Boolean,
-    val tracking_no: String,
-    val weight_info: String
+    @SerializedName("barcodePresent") val barcodePresent: Boolean?,
+    @SerializedName("courierFromBarcode") val courierFromBarcode: Boolean?,
+    @SerializedName("courierFromOcr") val courierFromOcr: Boolean?,
+    @SerializedName("courierName") val courierName: String?,
+    @SerializedName("courierNameDetected") val courierNameDetected: String?,
+    @SerializedName("dynamicExtractedLabels") val dynamicExtractedLabels: List<Any?>?,
+    @SerializedName("parcelDimensions") val parcelDimensions: ParcelDimensions?,
+    @SerializedName("presetLabels") val presetLabels: List<Any?>?,
+    @SerializedName("refNumber") val refNumber: String?,
+    @SerializedName("trackingFromBarcode") val trackingFromBarcode: Boolean?,
+    @SerializedName("miscellaneous") val miscellaneous: Miscellaneous,
+    @SerializedName("trackingFromOcr") val trackingFromOcr: Boolean?,
+    @SerializedName("trackingNo") val trackingNo: String?,
+    @SerializedName("weight") val weight: Weight?,
+    @SerializedName("dynamicLabels") val dynamicLabels: Weight?,
+    @SerializedName("weightInfo") val weightInfo: String,
+    @SerializedName("locationBasedLabels") val locationBasedLabels: List<Any>,
 )
