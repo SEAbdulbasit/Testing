@@ -7,9 +7,9 @@ data class Recipient(
     @SerializedName("address")
     val address: Address?,
     @SerializedName("email")
-    val email: Any?,
+    val email: String?,
     @SerializedName("name")
-    val name: Any?,
+    val name: String?,
     @SerializedName("phone")
-    val phone: Any?
+    val phone: String?
 )

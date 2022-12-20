@@ -875,6 +875,224 @@ class MainActivity : AppCompatActivity(), OnScanResult {
         }
     }
 
+    private fun showOCRResultDemo(ocrResponse: OCRResponseDemo) {
+        val meta = mutableListOf<String>()
+        responseBinding.metadata.text = ""
+        responseBinding.scrollView.visibility = View.VISIBLE
+        responseBinding.btnBack.visibility = View.VISIBLE
+        responseBinding.progressBar.visibility = View.INVISIBLE
+        responseBinding.textScanning.text = "Scanned"
+        if (ocrResponse.data != null) {
+            val trackingNo = ocrResponse.data?.trackingNumber
+            if (!trackingNo.isNullOrEmpty()) {
+                responseBinding.trackingNo.text = trackingNo
+                responseBinding.textTrackingNo.visibility = View.VISIBLE
+                responseBinding.trackingNo.visibility = View.VISIBLE
+            } else {
+                responseBinding.textTrackingNo.visibility = View.GONE
+                responseBinding.trackingNo.visibility = View.GONE
+            }
+            val courier = ocrResponse.data?.providerName
+            if (!courier.isNullOrEmpty()) {
+                val name = getCarrierNameFromKey(applicationContext, courier)
+                responseBinding.courier.text = name
+                responseBinding.textCourier.visibility = View.VISIBLE
+                responseBinding.courier.visibility = View.VISIBLE
+            } else {
+                responseBinding.textCourier.visibility = View.GONE
+                responseBinding.courier.visibility = View.GONE
+            }
+            val weight = ocrResponse.data?.weight//output?.scanOutput?.courierInfo?.weightInfo
+            if (!weight.isNullOrEmpty()) {
+                responseBinding.weight.text = weight
+                responseBinding.textWeight.visibility = View.VISIBLE
+                responseBinding.weight.visibility = View.VISIBLE
+            } else {
+                responseBinding.textWeight.visibility = View.GONE
+                responseBinding.weight.visibility = View.GONE
+            }
+            val receiverName = ocrResponse.data?.recipient?.name
+            if (!receiverName.isNullOrEmpty()) {
+                val rName = capitalize(receiverName)
+                responseBinding.receiverName.text = rName
+                responseBinding.textReceiverName.visibility = View.VISIBLE
+                responseBinding.receiverName.visibility = View.VISIBLE
+            } else {
+                responseBinding.textReceiverName.visibility = View.GONE
+                responseBinding.receiverName.visibility = View.GONE
+            }
+            val receiverStreet =
+                ocrResponse.data?.recipient?.address?.line1
+            if (!receiverStreet.isNullOrEmpty()) {
+                responseBinding.receiverStreet.text = receiverStreet
+                responseBinding.textReceiverStreet.visibility = View.VISIBLE
+                responseBinding.receiverStreet.visibility = View.VISIBLE
+            } else {
+                responseBinding.textReceiverStreet.visibility = View.GONE
+                responseBinding.receiverStreet.visibility = View.GONE
+            }
+            val receiverCity = ocrResponse.data?.recipient?.address?.city
+            if (!receiverCity.isNullOrEmpty()) {
+                responseBinding.receiverCity.text = receiverCity
+                responseBinding.textReceiverCity.visibility = View.VISIBLE
+                responseBinding.receiverCity.visibility = View.VISIBLE
+            } else {
+                responseBinding.textReceiverCity.visibility = View.GONE
+                responseBinding.receiverCity.visibility = View.GONE
+            }
+            val receiverState =
+                ocrResponse.data?.recipient?.address?.state
+            if (!receiverState.isNullOrEmpty()) {
+                responseBinding.receiverState.text = receiverState
+                responseBinding.textReceiverState.visibility = View.VISIBLE
+                responseBinding.receiverState.visibility = View.VISIBLE
+            } else {
+                responseBinding.textReceiverState.visibility = View.GONE
+                responseBinding.receiverState.visibility = View.GONE
+            }
+            val receiverZip =
+                ocrResponse.data?.recipient?.address?.postalCode
+            if (!receiverZip.isNullOrEmpty()) {
+                responseBinding.receiverZipcode.text = receiverZip
+                responseBinding.textReceiverZipCode.visibility = View.VISIBLE
+                responseBinding.receiverZipcode.visibility = View.VISIBLE
+            } else {
+                responseBinding.textReceiverZipCode.visibility = View.GONE
+                responseBinding.receiverZipcode.visibility = View.GONE
+            }
+            val receiverAddress =
+                ocrResponse.data?.recipient?.address?.formattedAddress
+            if (!receiverAddress.isNullOrEmpty()) {
+                responseBinding.receiverAddress.text = receiverAddress
+                responseBinding.textReceiverAddress.visibility = View.VISIBLE
+                responseBinding.receiverAddress.visibility = View.VISIBLE
+            } else {
+                responseBinding.textReceiverAddress.visibility = View.GONE
+                responseBinding.receiverAddress.visibility = View.GONE
+            }
+
+            val senderName = ocrResponse.data?.sender?.name
+            if (!senderName.isNullOrEmpty()) {
+                val sName = capitalize(senderName)
+                responseBinding.senderName.text = sName
+                responseBinding.senderName.visibility = View.VISIBLE
+                responseBinding.textSenderName.visibility = View.VISIBLE
+            } else {
+                responseBinding.senderName.visibility = View.GONE
+                responseBinding.textSenderName.visibility = View.GONE
+            }
+            val senderStreet =
+                ocrResponse.data?.sender?.address?.line1
+            if (!senderStreet.isNullOrEmpty()) {
+                responseBinding.senderStreet.text = senderStreet
+                responseBinding.textSenderStreetAddress.visibility = View.VISIBLE
+                responseBinding.senderStreet.visibility = View.VISIBLE
+            } else {
+                responseBinding.textSenderStreetAddress.visibility = View.GONE
+                responseBinding.senderStreet.visibility = View.GONE
+            }
+            val senderCity = ocrResponse.data?.sender?.address?.city
+            if (!senderCity.isNullOrEmpty()) {
+                responseBinding.senderCity.text = senderCity
+                responseBinding.textSenderCity.visibility = View.VISIBLE
+                responseBinding.senderCity.visibility = View.VISIBLE
+            } else {
+                responseBinding.textSenderCity.visibility = View.GONE
+                responseBinding.senderCity.visibility = View.GONE
+            }
+            val senderState = ocrResponse.data?.sender?.address?.state
+            if (!senderState.isNullOrEmpty()) {
+                responseBinding.senderState.text = senderState
+                responseBinding.textSenderStateAddress.visibility = View.VISIBLE
+                responseBinding.senderState.visibility = View.VISIBLE
+            } else {
+                responseBinding.textSenderStateAddress.visibility = View.GONE
+                responseBinding.senderState.visibility = View.GONE
+            }
+            val senderZip = ocrResponse.data?.sender?.address?.postalCode
+            if (!senderZip.isNullOrEmpty()) {
+                responseBinding.senderZipcode.text = senderZip
+                responseBinding.textSenderZipcode.visibility = View.VISIBLE
+                responseBinding.senderZipcode.visibility = View.VISIBLE
+            } else {
+                responseBinding.textSenderZipcode.visibility = View.GONE
+                responseBinding.senderZipcode.visibility = View.GONE
+            }
+            val senderAddress = ocrResponse.data?.sender?.address?.formattedAddress
+            if (!senderAddress.isNullOrEmpty()) {
+                responseBinding.senderAddress.text = senderAddress
+                responseBinding.senderAddress.visibility = View.VISIBLE
+                responseBinding.textSenderAddress.visibility = View.VISIBLE
+            } else {
+                responseBinding.senderAddress.visibility = View.GONE
+                responseBinding.textSenderAddress.visibility = View.GONE
+            }
+            val poNo = ocrResponse.data?.providerName
+            if (!poNo.isNullOrEmpty()) {
+                responseBinding.poNo.text = poNo
+                responseBinding.textPO.visibility = View.VISIBLE
+                responseBinding.poNo.visibility = View.VISIBLE
+            } else {
+                responseBinding.textPO.visibility = View.GONE
+                responseBinding.poNo.visibility = View.GONE
+            }
+            val presetLabels = ocrResponse.data?.extractedLabels
+
+            if (!presetLabels.isNullOrEmpty()) {
+                presetLabels.forEach { label ->
+                    meta.add("$label ")
+                }
+            }
+            if (meta.isNotEmpty()) {
+                responseBinding.textMetadata.visibility = View.VISIBLE
+                responseBinding.metadata.visibility = View.VISIBLE
+                meta.forEach { data ->
+                    responseBinding.metadata.append(data)
+                }
+            } else {
+                responseBinding.textMetadata.visibility = View.GONE
+                responseBinding.metadata.visibility = View.GONE
+            }
+
+            val refNo = ocrResponse.data?.referenceNumber
+            if (!refNo.isNullOrEmpty()) {
+                responseBinding.refNo.text = refNo
+                responseBinding.refNo.visibility = View.VISIBLE
+                responseBinding.textRefNo.visibility = View.VISIBLE
+            } else {
+                responseBinding.refNo.visibility = View.GONE
+                responseBinding.textRefNo.visibility = View.GONE
+            }
+
+            if (!trackingNo.isNullOrEmpty() || !courier.isNullOrEmpty() || !weight.isNullOrEmpty()) {
+                responseBinding.textPackageInfo.visibility = View.VISIBLE
+            } else {
+                responseBinding.textPackageInfo.visibility = View.GONE
+            }
+
+            if (!receiverName.isNullOrEmpty() || !receiverStreet.isNullOrEmpty() || !receiverCity.isNullOrEmpty() || !receiverState.isNullOrEmpty() || !receiverZip.isNullOrEmpty() || !receiverAddress.isNullOrEmpty()) {
+                responseBinding.textRecevierInfo.visibility = View.VISIBLE
+            } else {
+                responseBinding.textRecevierInfo.visibility = View.GONE
+            }
+            if (!senderName.isNullOrEmpty() || !senderStreet.isNullOrEmpty() || !senderCity.isNullOrEmpty() || !senderState.isNullOrEmpty() || !senderZip.isNullOrEmpty() || !senderAddress.isNullOrEmpty()) {
+                responseBinding.textSenderInfo.visibility = View.VISIBLE
+            } else {
+                responseBinding.textSenderInfo.visibility = View.GONE
+            }
+            if (!refNo.isNullOrEmpty() || !poNo.isNullOrEmpty()) {
+                responseBinding.textLogistics.visibility = View.VISIBLE
+            } else {
+                responseBinding.textLogistics.visibility = View.GONE
+            }
+            responseBinding.btnBack.setOnClickListener {
+                binding.camIcon.isEnabled = true
+                binding.customScannerView.imageView.visibility = View.GONE
+                OCRDialog.dismiss()
+            }
+        }
+    }
+
     private fun capitalize(
         string: String, delimiter: String = " ", separator: String = " "
     ): String {
@@ -899,8 +1117,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             }
 
             is OCRResponseDemo -> {
-                responseBinding.progressBar.visibility = View.INVISIBLE
-                Toast.makeText(this, "I am here with Demo response", Toast.LENGTH_SHORT).show()
+                showOCRResultDemo(ocrResponse)
             }
 
             else -> {

@@ -9,7 +9,7 @@ data class Sender(
     @SerializedName("email")
     val email: Any?,
     @SerializedName("name")
-    val name: Any?,
+    val name: String?,
     @SerializedName("phone")
     val phone: Any?
 )
