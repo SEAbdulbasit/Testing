@@ -14,7 +14,7 @@ data class Data(
     @SerializedName("object") val objectX: String?,
     @SerializedName("organization_id") val organizationId: String?,
     @SerializedName("provider_name") val providerName: String?,
-    @SerializedName("purchase_order") val purchaseOrder: Any?,
+    @SerializedName("purchase_order") val purchaseOrder: String?,
     @SerializedName("raw_text") val rawText: Any?,
     @SerializedName("recipient") val recipient: Recipient?,
     @SerializedName("reference_number") val referenceNumber: String?,

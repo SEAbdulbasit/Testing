@@ -23,11 +23,12 @@ import com.example.customscannerview.mlkit.*
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
+import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.BarcodeX
+import com.example.customscannerview.mlkit.modelclasses.ocr_request.FrameX
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRQARequest
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRRequestParent
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OcrRequest
-import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
 import com.example.customscannerview.mlkit.service.OcrApiService
 import com.example.customscannerview.mlkit.service.ServiceBuilder
 import com.google.common.util.concurrent.ListenableFuture
@@ -36,7 +37,6 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.text.Text
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
-import java.lang.Exception
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -360,7 +360,11 @@ class CustomScannerView(
     ): OCRRequestParent {
         return if (isQAVariant) {
             OCRQARequest(
-                barcode = BarcodeX(listOf()),
+                barcode = BarcodeX(listOf(barcodesList.map { barcode ->
+                    FrameX(
+                        barcode.displayValue, barcode.format.toString()
+                    )
+                }.toList())),
                 callType = "extract",
                 extractTime = "2022-08-29T05:58:28.902Z",
                 image = baseImage,

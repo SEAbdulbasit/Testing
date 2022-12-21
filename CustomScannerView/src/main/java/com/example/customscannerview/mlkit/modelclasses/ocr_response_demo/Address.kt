@@ -29,7 +29,7 @@ data class Address(
     @SerializedName("state")
     val state: String?,
     @SerializedName("state_code")
-    val stateCode: Any?,
+    val stateCode: String?,
     @SerializedName("textarea")
     val textarea: String?,
     @SerializedName("timezone")

@@ -904,7 +904,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             }
             val weight = ocrResponse.data?.weight//output?.scanOutput?.courierInfo?.weightInfo
             if (!weight.isNullOrEmpty()) {
-                responseBinding.weight.text = weight
+                responseBinding.weight.text = weight + "lbs"
                 responseBinding.textWeight.visibility = View.VISIBLE
                 responseBinding.weight.visibility = View.VISIBLE
             } else {
@@ -941,7 +941,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.receiverCity.visibility = View.GONE
             }
             val receiverState =
-                ocrResponse.data?.recipient?.address?.state
+                ocrResponse.data?.recipient?.address?.stateCode
             if (!receiverState.isNullOrEmpty()) {
                 responseBinding.receiverState.text = receiverState
                 responseBinding.textReceiverState.visibility = View.VISIBLE
@@ -1000,7 +1000,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textSenderCity.visibility = View.GONE
                 responseBinding.senderCity.visibility = View.GONE
             }
-            val senderState = ocrResponse.data?.sender?.address?.state
+            val senderState = ocrResponse.data?.sender?.address?.stateCode
             if (!senderState.isNullOrEmpty()) {
                 responseBinding.senderState.text = senderState
                 responseBinding.textSenderStateAddress.visibility = View.VISIBLE
@@ -1027,7 +1027,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.senderAddress.visibility = View.GONE
                 responseBinding.textSenderAddress.visibility = View.GONE
             }
-            val poNo = ocrResponse.data?.providerName
+            val poNo = ocrResponse.data?.purchaseOrder
             if (!poNo.isNullOrEmpty()) {
                 responseBinding.poNo.text = poNo
                 responseBinding.textPO.visibility = View.VISIBLE
