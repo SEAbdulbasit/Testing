@@ -20,6 +20,7 @@ data class CourierInfo(
     @SerializedName("shipmentType") val shipmentType: String?,
     @SerializedName("weight") val weight: Weight?,
     @SerializedName("dynamicLabels") val dynamicLabels: Weight?,
+    @SerializedName("rma") val rma: String?,
     @SerializedName("weightInfo") val weightInfo: String,
     @SerializedName("locationBasedLabels") val locationBasedLabels: List<Any>,
 )

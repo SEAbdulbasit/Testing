@@ -592,6 +592,27 @@
                     android:textSize="13sp" />
 
                 <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textRMANo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
+                    android:text="RMA #"
+                    android:textColor="@color/selectedColor"
+                    android:textSize="15sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/rmaNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textDimensions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

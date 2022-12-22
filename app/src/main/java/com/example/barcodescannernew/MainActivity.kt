@@ -665,6 +665,16 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textShipmentType.visibility = View.GONE
             }
 
+            val rma = ocrResponse.data?.output?.scanOutput?.courierInfo?.rma
+            if (!rma.isNullOrEmpty()) {
+                responseBinding.rmaNo.text = rma
+                responseBinding.rmaNo.visibility = View.VISIBLE
+                responseBinding.textRMANo.visibility = View.VISIBLE
+            } else {
+                responseBinding.rmaNo.visibility = View.GONE
+                responseBinding.textRMANo.visibility = View.GONE
+            }
+
             val courier = ocrResponse.data?.output?.scanOutput?.courierInfo?.courierName
             if (!courier.isNullOrEmpty()) {
                 val name = getCarrierNameFromKey(applicationContext, courier)
@@ -976,6 +986,16 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             } else {
                 responseBinding.shipmentType.visibility = View.GONE
                 responseBinding.textShipmentType.visibility = View.GONE
+            }
+
+            val rma = ocrResponse.data?.rmaNumber
+            if (!rma.isNullOrEmpty()) {
+                responseBinding.rmaNo.text = rma
+                responseBinding.rmaNo.visibility = View.VISIBLE
+                responseBinding.textRMANo.visibility = View.VISIBLE
+            } else {
+                responseBinding.rmaNo.visibility = View.GONE
+                responseBinding.textRMANo.visibility = View.GONE
             }
 
             val courier = ocrResponse.data?.providerName

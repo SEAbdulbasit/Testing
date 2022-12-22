@@ -18,7 +18,7 @@ data class Data(
     @SerializedName("raw_text") val rawText: Any?,
     @SerializedName("recipient") val recipient: Recipient?,
     @SerializedName("reference_number") val referenceNumber: String?,
-    @SerializedName("rma_number") val rmaNumber: Any?,
+    @SerializedName("rma_number") val rmaNumber: String?,
     @SerializedName("sender") val sender: Sender?,
     @SerializedName("service_level_name") val serviceLevelName: String?,
     @SerializedName("tracking_number") val trackingNumber: String?,
