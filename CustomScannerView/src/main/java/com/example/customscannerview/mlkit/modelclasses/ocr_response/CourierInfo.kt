@@ -17,6 +17,7 @@ data class CourierInfo(
     @SerializedName("miscellaneous") val miscellaneous: Miscellaneous,
     @SerializedName("trackingFromOcr") val trackingFromOcr: Boolean?,
     @SerializedName("trackingNo") val trackingNo: String?,
+    @SerializedName("shipmentType") val shipmentType: String?,
     @SerializedName("weight") val weight: Weight?,
     @SerializedName("dynamicLabels") val dynamicLabels: Weight?,
     @SerializedName("weightInfo") val weightInfo: String,

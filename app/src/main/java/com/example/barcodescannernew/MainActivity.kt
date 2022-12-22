@@ -647,6 +647,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
         responseBinding.progressBar.visibility = View.INVISIBLE
         responseBinding.textScanning.text = "Scanned"
         if (ocrResponse.data != null) {
+
             val trackingNo = ocrResponse.data?.output?.scanOutput?.courierInfo?.trackingNo
             if (!trackingNo.isNullOrEmpty()) {
                 responseBinding.trackingNo.text = trackingNo
@@ -656,6 +657,17 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textTrackingNo.visibility = View.GONE
                 responseBinding.trackingNo.visibility = View.GONE
             }
+
+            val shipmentType = ocrResponse.data?.output?.scanOutput?.courierInfo?.shipmentType
+            if (!shipmentType.isNullOrEmpty()) {
+                responseBinding.shipmentType.text = shipmentType
+                responseBinding.shipmentType.visibility = View.VISIBLE
+                responseBinding.textShipmentType.visibility = View.VISIBLE
+            } else {
+                responseBinding.shipmentType.visibility = View.GONE
+                responseBinding.textShipmentType.visibility = View.GONE
+            }
+
             val courier = ocrResponse.data?.output?.scanOutput?.courierInfo?.courierName
             if (!courier.isNullOrEmpty()) {
                 val name = getCarrierNameFromKey(applicationContext, courier)
@@ -906,6 +918,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
         responseBinding.progressBar.visibility = View.INVISIBLE
         responseBinding.textScanning.text = "Scanned"
         if (ocrResponse.data != null) {
+
             val trackingNo = ocrResponse.data?.trackingNumber
             if (!trackingNo.isNullOrEmpty()) {
                 responseBinding.trackingNo.text = trackingNo
@@ -915,6 +928,17 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textTrackingNo.visibility = View.GONE
                 responseBinding.trackingNo.visibility = View.GONE
             }
+
+            val shipmentType:String? = ocrResponse.data?.serviceLevelName
+            if (!shipmentType.isNullOrEmpty()) {
+                responseBinding.shipmentType.text = shipmentType
+                responseBinding.shipmentType.visibility = View.VISIBLE
+                responseBinding.textShipmentType.visibility = View.VISIBLE
+            } else {
+                responseBinding.shipmentType.visibility = View.GONE
+                responseBinding.textShipmentType.visibility = View.GONE
+            }
+
             val courier = ocrResponse.data?.providerName
             if (!courier.isNullOrEmpty()) {
                 val name = getCarrierNameFromKey(applicationContext, courier)

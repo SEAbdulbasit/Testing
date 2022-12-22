@@ -20,7 +20,7 @@ data class Data(
     @SerializedName("reference_number") val referenceNumber: String?,
     @SerializedName("rma_number") val rmaNumber: Any?,
     @SerializedName("sender") val sender: Sender?,
-    @SerializedName("service_level_name") val serviceLevelName: Any?,
+    @SerializedName("service_level_name") val serviceLevelName: String?,
     @SerializedName("tracking_number") val trackingNumber: String?,
     @SerializedName("type") val type: String?,
     @SerializedName("updated_at") val updatedAt: String?,
