@@ -5,9 +5,9 @@ import com.google.gson.annotations.SerializedName
 
 data class Dimensions(
     @SerializedName("height")
-    val height: Any?,
+    val height: String?,
     @SerializedName("length")
-    val length: Any?,
+    val length: String?,
     @SerializedName("width")
-    val width: Any?
+    val width: String?
 )

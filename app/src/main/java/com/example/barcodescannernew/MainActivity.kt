@@ -687,7 +687,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textWeight.visibility = View.GONE
                 responseBinding.weight.visibility = View.GONE
             }
-            val receiverName = ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.name
+            val receiverName = ocrResponse.data?.output?.scanOutput?.data?.recipientFound?.firstOrNull()?.name
             if (!receiverName.isNullOrEmpty()) {
                 val rName = capitalize(receiverName)
                 responseBinding.receiverName.text = rName
@@ -837,6 +837,26 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textSenderUnitNo.visibility = View.GONE
             }
 
+            //TODO
+//            if (!ocrResponse.data?.output?.scanOutput?.courierInfo.parcelDimensions .length.isNullOrEmpty() || !ocrResponse.data?.dimensions?.height.isNullOrEmpty() || !ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
+//                val stringBuilder = StringBuilder()
+//                if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty()) {
+//                    stringBuilder.append(" L: ${ocrResponse.data?.dimensions?.length}")
+//                }
+//                if (!ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
+//                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.width}")
+//                }
+//                if (!ocrResponse.data?.dimensions?.height.isNullOrEmpty()) {
+//                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.height}")
+//                }
+//                responseBinding.dimensions.text = stringBuilder
+//                responseBinding.dimensions.visibility = View.VISIBLE
+//                responseBinding.textDimensions.visibility = View.VISIBLE
+//            } else {
+//                responseBinding.dimensions.visibility = View.GONE
+//                responseBinding.textDimensions.visibility = View.GONE
+//            }
+
             val presetLabels = ocrResponse.data?.output?.scanOutput?.courierInfo?.presetLabels
             val dynamicExtracted =
                 ocrResponse.data?.output?.scanOutput?.courierInfo?.dynamicExtractedLabels
@@ -929,7 +949,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.trackingNo.visibility = View.GONE
             }
 
-            val shipmentType:String? = ocrResponse.data?.serviceLevelName
+            val shipmentType: String? = ocrResponse.data?.serviceLevelName
             if (!shipmentType.isNullOrEmpty()) {
                 responseBinding.shipmentType.text = shipmentType
                 responseBinding.shipmentType.visibility = View.VISIBLE
@@ -1133,6 +1153,26 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textRefNo.visibility = View.GONE
             }
 
+            //TODO
+            if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty() || !ocrResponse.data?.dimensions?.height.isNullOrEmpty() || !ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
+                val stringBuilder = StringBuilder()
+                if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty()) {
+                    stringBuilder.append(" L: ${ocrResponse.data?.dimensions?.length}")
+                }
+                if (!ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
+                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.width}")
+                }
+                if (!ocrResponse.data?.dimensions?.height.isNullOrEmpty()) {
+                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.height}")
+                }
+                responseBinding.dimensions.text = stringBuilder
+                responseBinding.dimensions.visibility = View.VISIBLE
+                responseBinding.textDimensions.visibility = View.VISIBLE
+            } else {
+                responseBinding.dimensions.visibility = View.GONE
+                responseBinding.textDimensions.visibility = View.GONE
+            }
+
             if (!trackingNo.isNullOrEmpty() || !courier.isNullOrEmpty() || !weight.isNullOrEmpty()) {
                 responseBinding.textPackageInfo.visibility = View.VISIBLE
             } else {
@@ -1149,7 +1189,9 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             } else {
                 responseBinding.textSenderInfo.visibility = View.GONE
             }
-            if (!refNo.isNullOrEmpty() || !poNo.isNullOrEmpty()) {
+
+            //TODO
+            if (!refNo.isNullOrEmpty() || !poNo.isNullOrEmpty() || !ocrResponse.data?.dimensions?.length.isNullOrEmpty() || !ocrResponse.data?.dimensions?.height.isNullOrEmpty() || !ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
                 responseBinding.textLogistics.visibility = View.VISIBLE
             } else {
                 responseBinding.textLogistics.visibility = View.GONE
