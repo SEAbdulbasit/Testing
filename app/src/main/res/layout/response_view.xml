@@ -9,8 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#99000000"
-    >
+        android:background="#99000000">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/topView"
@@ -25,8 +24,8 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
-                android:indeterminate="true"
                 android:layout_marginTop="-14dp"
+                android:indeterminate="true"
                 android:indeterminateTint="@color/boldTextColor"
                 android:indeterminateTintMode="src_atop"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -47,8 +46,7 @@
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/progressBar"
-                />
+                app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
             <TextView
                 android:id="@+id/btnBack"
@@ -69,429 +67,488 @@
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:paddingBottom="50dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/topView"
-            android:paddingBottom="50dp"
-            >
+            app:layout_constraintTop_toBottomOf="@id/topView">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingBottom="20dp"
-                >
+                android:paddingBottom="20dp">
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textPackageInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="5dp"
                     android:padding="6dp"
                     android:text="Package Info"
-                    android:textStyle="bold"
                     android:textColor="@color/boldTextColor"
                     android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="6dp"
-                    />
+                    android:textStyle="bold" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textTrackingNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Tracking #"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/trackingNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:layout_marginBottom="8dp"
-                    android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
                     android:layout_marginLeft="12dp"
-                    />
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textCourier"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Courier"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/courier"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textWeight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Weight"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"/>
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/weight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:layout_marginBottom="8dp"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:layout_marginLeft="12dp"
                     android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"/>
+                    android:layout_marginBottom="8dp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textRecevierInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Receiver Info"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="5dp"
                     android:padding="6dp"
-                    android:textStyle="bold"
+                    android:text="Receiver Info"
                     android:textColor="@color/boldTextColor"
                     android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="6dp"
-                    />
+                    android:textStyle="bold" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textReceiverName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Name"
-                    android:layout_marginBottom="4dp"
-                    android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
+                    android:layout_marginLeft="12dp"
                     android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:layout_marginBottom="4dp"
+                    android:text="Name"
+                    android:textColor="@color/selectedColor"
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/receiverName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:layout_marginBottom="8dp"
-                    android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
                     android:layout_marginLeft="12dp"
-                    />
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textReceiverStreet"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Street Address"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/receiverStreet"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:layout_marginBottom="8dp"
-                    android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
                     android:layout_marginLeft="12dp"
-                    />
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textReceiverCity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="City"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/receiverCity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textReceiverState"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="State"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/receiverState"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"/>
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textReceiverZipCode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Zip Code"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/receiverZipcode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textReceiverAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Address"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/receiverAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textReceiverUnitNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
                     android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:text="Unit No"
+                    android:textColor="@color/selectedColor"
+                    android:textSize="15sp" />
 
-
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/receiverUnitNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
 
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textSenderInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="5dp"
                     android:padding="6dp"
                     android:text="Sender Info"
                     android:textColor="@color/boldTextColor"
                     android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="6dp"
-                    />
+                    android:textStyle="bold" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textSenderName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Name"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"/>
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/senderName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textSenderStreetAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Street Address"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/senderStreet"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textSenderCity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="City"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/senderCity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textSenderStateAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="State"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/senderState"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textSenderZipcode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Zip Code"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/senderZipcode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textSenderAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Address"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/senderAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textSenderUnitNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginLeft="12dp"
-                    />
+                    android:layout_marginTop="5dp"
+                    android:text="Unit No"
+                    android:textColor="@color/selectedColor"
+                    android:textSize="15sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/senderUnitNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textLogistics"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="5dp"
                     android:padding="6dp"
                     android:text="Logistic Attributes"
                     android:textColor="@color/boldTextColor"
                     android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="6dp"
-                    />
+                    android:textStyle="bold" />
 
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textPO"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="PO #"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/poNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textRefNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="REF #"
                     android:textColor="@color/selectedColor"
-                    android:textSize="15sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp" />
+                    android:textSize="15sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/refNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textSize="13sp" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textMetadata"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:text="Metadata"
                     android:textColor="@color/boldTextColor"
                     android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textStyle="bold" />
+
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/metadata"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginBottom="8dp"
                     android:text=""
                     android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="12dp"
-                    />
+                    android:textSize="13sp" />
             </LinearLayout>
 
         </ScrollView>

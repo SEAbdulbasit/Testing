@@ -735,6 +735,17 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.receiverAddress.visibility = View.GONE
             }
 
+            val receiverUnitNo =
+                ocrResponse.data?.output?.scanOutput?.address?.receiverAddress?.unitNo
+            if (!receiverUnitNo.isNullOrEmpty()) {
+                responseBinding.receiverUnitNo.text = receiverUnitNo
+                responseBinding.receiverUnitNo.visibility = View.VISIBLE
+                responseBinding.textReceiverUnitNo.visibility = View.VISIBLE
+            } else {
+                responseBinding.receiverUnitNo.visibility = View.GONE
+                responseBinding.textReceiverUnitNo.visibility = View.GONE
+            }
+
             val senderFound = ocrResponse.data?.output?.scanOutput?.data?.senderFound ?: emptyList()
             val senderName = senderFound.firstOrNull()?.combinedInfo
             if (!senderName.isNullOrEmpty()) {
@@ -802,6 +813,18 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textPO.visibility = View.GONE
                 responseBinding.poNo.visibility = View.GONE
             }
+
+
+            val senderUnitNo = ocrResponse.data?.output?.scanOutput?.address?.senderAddress?.unitNo
+            if (!senderUnitNo.isNullOrEmpty()) {
+                responseBinding.senderUnitNo.text = senderUnitNo
+                responseBinding.senderUnitNo.visibility = View.VISIBLE
+                responseBinding.textSenderUnitNo.visibility = View.VISIBLE
+            } else {
+                responseBinding.senderUnitNo.visibility = View.GONE
+                responseBinding.textSenderUnitNo.visibility = View.GONE
+            }
+
             val presetLabels = ocrResponse.data?.output?.scanOutput?.courierInfo?.presetLabels
             val dynamicExtracted =
                 ocrResponse.data?.output?.scanOutput?.courierInfo?.dynamicExtractedLabels
@@ -971,6 +994,18 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.receiverAddress.visibility = View.GONE
             }
 
+            val receiverUnitNo =
+                ocrResponse.data?.recipient?.address?.line2
+            if (!receiverUnitNo.isNullOrEmpty()) {
+                responseBinding.receiverUnitNo.text = receiverUnitNo
+                responseBinding.receiverUnitNo.visibility = View.VISIBLE
+                responseBinding.textReceiverUnitNo.visibility = View.VISIBLE
+            } else {
+                responseBinding.receiverUnitNo.visibility = View.GONE
+                responseBinding.textReceiverUnitNo.visibility = View.GONE
+            }
+
+
             val senderName = ocrResponse.data?.sender?.name
             if (!senderName.isNullOrEmpty()) {
                 val sName = capitalize(senderName)
@@ -1026,6 +1061,16 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             } else {
                 responseBinding.senderAddress.visibility = View.GONE
                 responseBinding.textSenderAddress.visibility = View.GONE
+            }
+
+            val senderUnitNo = ocrResponse.data?.sender?.address?.line2
+            if (!senderUnitNo.isNullOrEmpty()) {
+                responseBinding.senderUnitNo.text = senderUnitNo
+                responseBinding.senderUnitNo.visibility = View.VISIBLE
+                responseBinding.textSenderUnitNo.visibility = View.VISIBLE
+            } else {
+                responseBinding.senderUnitNo.visibility = View.GONE
+                responseBinding.textSenderUnitNo.visibility = View.GONE
             }
             val poNo = ocrResponse.data?.purchaseOrder
             if (!poNo.isNullOrEmpty()) {

@@ -21,7 +21,7 @@ data class Address(
     @SerializedName("line1")
     val line1: String?,
     @SerializedName("line2")
-    val line2: Any?,
+    val line2: String?,
     @SerializedName("object")
     val objectX: String?,
     @SerializedName("postal_code")
@@ -35,5 +35,7 @@ data class Address(
     @SerializedName("timezone")
     val timezone: Any?,
     @SerializedName("verified")
-    val verified: Boolean?
+    val verified: Boolean?,
+    @SerializedName("unit_no")
+    val unitNo: String?
 )
