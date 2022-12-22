@@ -866,25 +866,30 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.senderPhoneNo.visibility = View.GONE
             }
 
-            //TODO
-//            if (!ocrResponse.data?.output?.scanOutput?.courierInfo.parcelDimensions .length.isNullOrEmpty() || !ocrResponse.data?.dimensions?.height.isNullOrEmpty() || !ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
-//                val stringBuilder = StringBuilder()
-//                if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty()) {
-//                    stringBuilder.append(" L: ${ocrResponse.data?.dimensions?.length}")
-//                }
-//                if (!ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
-//                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.width}")
-//                }
-//                if (!ocrResponse.data?.dimensions?.height.isNullOrEmpty()) {
-//                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.height}")
-//                }
-//                responseBinding.dimensions.text = stringBuilder
-//                responseBinding.dimensions.visibility = View.VISIBLE
-//                responseBinding.textDimensions.visibility = View.VISIBLE
-//            } else {
-//                responseBinding.dimensions.visibility = View.GONE
-//                responseBinding.textDimensions.visibility = View.GONE
-//            }
+            if (!ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value.isNullOrEmpty()) {
+                val stringBuilder = StringBuilder()
+                ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value?.getOrNull(
+                    0
+                )?.apply {
+                    stringBuilder.append(" L: $this")
+                }
+                ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value?.getOrNull(
+                    1
+                )?.apply {
+                    stringBuilder.append(" W: $this")
+                }
+                ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value?.getOrNull(
+                    2
+                )?.apply {
+                    stringBuilder.append(" H: $this")
+                }
+                responseBinding.dimensions.text = stringBuilder
+                responseBinding.dimensions.visibility = View.VISIBLE
+                responseBinding.textDimensions.visibility = View.VISIBLE
+            } else {
+                responseBinding.dimensions.visibility = View.GONE
+                responseBinding.textDimensions.visibility = View.GONE
+            }
 
             val presetLabels = ocrResponse.data?.output?.scanOutput?.courierInfo?.presetLabels
             val dynamicExtracted =
@@ -946,7 +951,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             } else {
                 responseBinding.textSenderInfo.visibility = View.GONE
             }
-            if (!refNo.isNullOrEmpty() || !poNo.isNullOrEmpty()) {
+            if (!refNo.isNullOrEmpty() || !poNo.isNullOrEmpty() || !ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value.isNullOrEmpty()) {
                 responseBinding.textLogistics.visibility = View.VISIBLE
             } else {
                 responseBinding.textLogistics.visibility = View.GONE
@@ -1207,7 +1212,6 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 responseBinding.textRefNo.visibility = View.GONE
             }
 
-            //TODO
             if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty() || !ocrResponse.data?.dimensions?.height.isNullOrEmpty() || !ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
                 val stringBuilder = StringBuilder()
                 if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty()) {
@@ -1217,7 +1221,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                     stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.width}")
                 }
                 if (!ocrResponse.data?.dimensions?.height.isNullOrEmpty()) {
-                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.height}")
+                    stringBuilder.append(" H: ${ocrResponse.data?.dimensions?.height}")
                 }
                 responseBinding.dimensions.text = stringBuilder
                 responseBinding.dimensions.visibility = View.VISIBLE
