@@ -11,5 +11,5 @@ data class Sender(
     @SerializedName("name")
     val name: String?,
     @SerializedName("phone")
-    val phone: Any?
+    val phone: String?
 )

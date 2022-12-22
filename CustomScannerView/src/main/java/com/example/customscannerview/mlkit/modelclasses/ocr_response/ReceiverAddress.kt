@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ReceiverAddress(
     @SerializedName("addressLine1") val addressLine1: String?,
+    @SerializedName("phone") val phone: String?,
     @SerializedName("city") val city: String?,
     @SerializedName("completeAddress") val completeAddress: String?,
     @SerializedName("country") val country: String?,

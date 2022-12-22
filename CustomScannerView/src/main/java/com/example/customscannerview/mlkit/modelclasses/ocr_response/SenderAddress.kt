@@ -8,6 +8,7 @@ data class SenderAddress(
     @SerializedName("city") val city: String?,
     @SerializedName("completeAddress") val completeAddress: String?,
     @SerializedName("country") val country: String?,
+    @SerializedName("phone") val phone: String?,
     @SerializedName("state") val state: String?,
     @SerializedName("zipCodeLine") val zipCodeLine: String?,
     @SerializedName("unitNo") val unitNo: String?,
