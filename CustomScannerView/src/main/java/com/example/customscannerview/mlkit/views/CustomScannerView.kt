@@ -3,7 +3,6 @@ package com.example.customscannerview.mlkit.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.*
@@ -20,15 +19,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.example.customscannerview.mlkit.*
+import com.example.customscannerview.mlkit.BitmapUtils.convertBitmapToBase64
+import com.example.customscannerview.mlkit.BitmapUtils.imageToBitmap
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OCRResult
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
-import com.example.customscannerview.mlkit.modelclasses.ocr_request.BarcodeX
-import com.example.customscannerview.mlkit.modelclasses.ocr_request.FrameX
-import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRQARequest
-import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRRequestParent
-import com.example.customscannerview.mlkit.modelclasses.ocr_request.OcrRequest
 import com.example.customscannerview.mlkit.service.OcrApiService
 import com.example.customscannerview.mlkit.service.ServiceBuilder
 import com.google.common.util.concurrent.ListenableFuture
@@ -36,7 +32,6 @@ import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.text.Text
 import kotlinx.coroutines.*
-import java.io.ByteArrayOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -306,19 +301,6 @@ class CustomScannerView(
             matrix.postRotate(90F)
             Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.width, mBitmap.height, matrix, true)
         } else mBitmap
-    }
-
-    fun imageToBitmap(image: ImageProxy): Bitmap? {
-        val buffer = image.planes[0].buffer
-        val bytes = ByteArray(buffer.capacity()).also { buffer.get(it) }
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-    }
-
-    private fun convertBitmapToBase64(bitmap: Bitmap): String? {
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos)
-        val b = baos.toByteArray()
-        return Base64.encodeToString(b, Base64.NO_WRAP)
     }
 
     private val repository = Repository(ServiceBuilder.buildService(OcrApiService::class.java))
