@@ -40,6 +40,7 @@ import com.example.barcodescannernew.utils.hide
 import com.example.barcodescannernew.utils.show
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
+import com.example.customscannerview.mlkit.interfaces.OCRResult
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.example.customscannerview.mlkit.modelclasses.OCRResponseDemo
 import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
@@ -51,7 +52,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), OnScanResult {
+class MainActivity : AppCompatActivity(), OnScanResult, OCRResult {
     lateinit var binding: ActivityMainBinding
     lateinit var barcodeNotFoundBinding: BarcodeNotFoundViewBinding
     private var doNotShowDialog: Boolean = false
@@ -871,18 +872,22 @@ class MainActivity : AppCompatActivity(), OnScanResult {
                 ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value?.getOrNull(
                     0
                 )?.apply {
-                    stringBuilder.append(" L: $this")
+                    stringBuilder.append("$this")
                 }
                 ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value?.getOrNull(
                     1
                 )?.apply {
-                    stringBuilder.append(" W: $this")
+                    stringBuilder.append(" x $this")
                 }
                 ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.value?.getOrNull(
                     2
                 )?.apply {
-                    stringBuilder.append(" H: $this")
+                    stringBuilder.append(" x $this")
                 }
+                ocrResponse.data?.output?.scanOutput?.courierInfo?.parcelDimensions?.unit?.apply {
+                    stringBuilder.append(" $this")
+                }
+
                 responseBinding.dimensions.text = stringBuilder
                 responseBinding.dimensions.visibility = View.VISIBLE
                 responseBinding.textDimensions.visibility = View.VISIBLE
@@ -1015,7 +1020,7 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             }
             val weight = ocrResponse.data?.weight//output?.scanOutput?.courierInfo?.weightInfo
             if (!weight.isNullOrEmpty()) {
-                responseBinding.weight.text = weight + "lbs"
+                responseBinding.weight.text = "$weight lbs"
                 responseBinding.textWeight.visibility = View.VISIBLE
                 responseBinding.weight.visibility = View.VISIBLE
             } else {
@@ -1215,14 +1220,15 @@ class MainActivity : AppCompatActivity(), OnScanResult {
             if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty() || !ocrResponse.data?.dimensions?.height.isNullOrEmpty() || !ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
                 val stringBuilder = StringBuilder()
                 if (!ocrResponse.data?.dimensions?.length.isNullOrEmpty()) {
-                    stringBuilder.append(" L: ${ocrResponse.data?.dimensions?.length}")
+                    stringBuilder.append("${ocrResponse.data?.dimensions?.length}")
                 }
                 if (!ocrResponse.data?.dimensions?.width.isNullOrEmpty()) {
-                    stringBuilder.append(" W: ${ocrResponse.data?.dimensions?.width}")
+                    stringBuilder.append(" x ${ocrResponse.data?.dimensions?.width}")
                 }
                 if (!ocrResponse.data?.dimensions?.height.isNullOrEmpty()) {
-                    stringBuilder.append(" H: ${ocrResponse.data?.dimensions?.height}")
+                    stringBuilder.append(" x ${ocrResponse.data?.dimensions?.height}")
                 }
+                stringBuilder.append(" IN")
                 responseBinding.dimensions.text = stringBuilder
                 responseBinding.dimensions.visibility = View.VISIBLE
                 responseBinding.textDimensions.visibility = View.VISIBLE

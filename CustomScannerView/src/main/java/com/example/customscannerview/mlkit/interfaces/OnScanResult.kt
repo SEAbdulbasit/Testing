@@ -9,7 +9,10 @@ interface OnScanResult {
 
     fun onViewDetected(barCodeResult: MutableList<Barcode>)
     fun onMultiBarcodesDetected(barcodes: List<Barcode>)
+    fun onSomeTextDetected(text: Text)
+}
+
+interface OCRResult {
     fun onOCRResponse(ocrResponse: OCRResponseParent?)
     fun onOCRResponseFailed(throwable: Throwable?)
-    fun onSomeTextDetected(text: Text)
 }

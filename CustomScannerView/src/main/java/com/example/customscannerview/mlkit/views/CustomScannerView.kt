@@ -22,8 +22,8 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.example.customscannerview.mlkit.*
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
+import com.example.customscannerview.mlkit.interfaces.OCRResult
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
-import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.BarcodeX
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.FrameX
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRQARequest
@@ -69,12 +69,11 @@ class CustomScannerView(
     val textResult = MutableLiveData<Text>()
     val multipleBarcodes = MutableLiveData<MutableList<Barcode>>()
     val onSomethingDetected = MutableLiveData<MutableList<Barcode>>()
-    val testBarcodes = mutableListOf<Barcode>()
+    private val testBarcodes = mutableListOf<Barcode>()
 
 
     fun startScanning(viewType: ViewType, scanType: ScanType) {
         selectedViewType = viewType
-
 
         // design work
         removeAllViews()
@@ -262,21 +261,12 @@ class CustomScannerView(
         multipleBarcodes.postValue(barcodes as MutableList<Barcode>)
     }
 
-
-    override fun onOCRResponse(ocrResponse: OCRResponseParent?) {
-
-    }
-
-    override fun onOCRResponseFailed(throwable: Throwable?) {
-
-    }
-
     override fun onSomeTextDetected(text: Text) {
         textResult.postValue(text)
     }
 
 
-    fun captureImage(onScanResult: OnScanResult) {
+    fun captureImage(onScanResult: OCRResult) {
         imageCapture.takePicture(cameraExecutor!!, object : ImageCapture.OnImageCapturedCallback() {
             @SuppressLint("UnsafeOptInUsageError")
             override fun onCaptureSuccess(imageProxy: ImageProxy) {
@@ -334,7 +324,7 @@ class CustomScannerView(
     private val repository = Repository(ServiceBuilder.buildService(OcrApiService::class.java))
     private val isQAVariant = true
 
-    suspend fun callOCR(onScanResult: OnScanResult, baseImage: String) {
+    suspend fun callOCR(onScanResult: OCRResult, baseImage: String) {
         try {
             val response = repository.analyseOCRAsync(
                 getOCRRequest(

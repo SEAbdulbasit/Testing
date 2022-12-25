@@ -2,11 +2,11 @@ package com.example.customscannerview.mlkit
 
 import com.example.customscannerview.mlkit.modelclasses.OCRResponseDemo
 import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
+import com.example.customscannerview.mlkit.modelclasses.OcrResponse
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRQARequest
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OCRRequestParent
-import com.example.customscannerview.mlkit.service.OcrApiService
 import com.example.customscannerview.mlkit.modelclasses.ocr_request.OcrRequest
-import com.example.customscannerview.mlkit.modelclasses.OcrResponse
+import com.example.customscannerview.mlkit.service.OcrApiService
 
 class Repository(private val apiService: OcrApiService) {
 

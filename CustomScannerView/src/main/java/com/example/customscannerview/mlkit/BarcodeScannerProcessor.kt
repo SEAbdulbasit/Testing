@@ -19,15 +19,13 @@ class BarcodeScannerProcessor(
     private val getRectCallback: () -> RectF?
 ) : VisionProcessorBase<List<Barcode>>() {
 
-    private val textDetector by lazy {
-        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    }
+    private val textDetector = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient()
-
 
     override fun stop() {
         super.stop()
         barcodeScanner.close()
+        textDetector.close()
     }
 
     override fun detectInImage(image: InputImage): Task<List<Barcode>> {
@@ -35,7 +33,6 @@ class BarcodeScannerProcessor(
             textCallback.onTextDetected(it)
         }
         return barcodeScanner.process(image)
-
     }
 
     override fun onSuccess(results: List<Barcode>, graphicOverlay: GraphicOverlay) {
@@ -58,7 +55,7 @@ class BarcodeScannerProcessor(
 
 
     override fun onFailure(e: Exception) {
-        // do nothing
+        e.printStackTrace()
     }
 
 }
