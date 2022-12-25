@@ -1,51 +1,39 @@
-package com.example.customscannerview.mlkit;
+package com.example.customscannerview.mlkit
 
-import android.app.Application;
-import android.util.Log;
+import android.app.Application
+import android.util.Log
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import java.util.concurrent.ExecutionException
 
-import androidx.annotation.NonNull;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+class CameraXViewModel(application: Application) : AndroidViewModel(application) {
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.concurrent.ExecutionException;
-
-/**
- * View model for interacting with CameraX.
- */
-public final class CameraXViewModel extends AndroidViewModel {
-
-    private static final String TAG = "CameraXViewModel";
-    private MutableLiveData<ProcessCameraProvider> cameraProviderLiveData;
-
-    /**
-     * Create an instance which interacts with the camera service via the given application context.
-     */
-    public CameraXViewModel(@NonNull Application application) {
-        super(application);
-    }
-
-    public LiveData<ProcessCameraProvider> getProcessCameraProvider() {
-        if (cameraProviderLiveData == null) {
-            cameraProviderLiveData = new MutableLiveData<>();
-
-            ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-                    ProcessCameraProvider.getInstance(getApplication());
-            cameraProviderFuture.addListener(
-                    () -> {
+    private var cameraProviderLiveData: MutableLiveData<ProcessCameraProvider>? = null
+    val processCameraProvider: LiveData<ProcessCameraProvider>
+        get() {
+            if (cameraProviderLiveData == null) {
+                cameraProviderLiveData = MutableLiveData()
+                val cameraProviderFuture = ProcessCameraProvider.getInstance(getApplication())
+                cameraProviderFuture.addListener(
+                    {
                         try {
-                            cameraProviderLiveData.setValue(cameraProviderFuture.get());
-                        } catch (ExecutionException | InterruptedException e) {
-                            Log.e(TAG, "Unhandled exception", e);
+                            cameraProviderLiveData!!.setValue(cameraProviderFuture.get())
+                        } catch (e: ExecutionException) {
+                            Log.e(TAG, "Unhandled exception", e)
+                        } catch (e: InterruptedException) {
+                            Log.e(TAG, "Unhandled exception", e)
                         }
                     },
-                    ContextCompat.getMainExecutor(getApplication().getApplicationContext()));
+                    ContextCompat.getMainExecutor(getApplication<Application>().applicationContext)
+                )
+            }
+            return cameraProviderLiveData!!
         }
 
-        return cameraProviderLiveData;
+    companion object {
+        private const val TAG = "CameraXViewModel"
     }
 }
