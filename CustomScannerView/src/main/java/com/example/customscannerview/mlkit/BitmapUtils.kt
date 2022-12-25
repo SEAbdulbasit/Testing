@@ -1,183 +1,204 @@
-package com.example.customscannerview.mlkit;
+package com.example.customscannerview.mlkit
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
-import android.media.Image;
-import android.media.Image.Plane;
-import android.util.Log;
-
-import androidx.annotation.Nullable;
-import androidx.camera.core.ExperimentalGetImage;
-import androidx.camera.core.ImageProxy;
-
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.Rect
+import android.graphics.YuvImage
+import android.media.Image.Plane
+import android.util.Base64
+import android.util.Log
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageProxy
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 /**
  * Utils functions for bitmap conversions.
  */
-public class BitmapUtils {
+object BitmapUtils {
     /**
      * Converts NV21 format byte buffer to bitmap.
      */
-    @Nullable
-    public static Bitmap getBitmap(ByteBuffer data, FrameMetadata metadata) {
-        data.rewind();
-        byte[] imageInBuffer = new byte[data.limit()];
-        data.get(imageInBuffer, 0, imageInBuffer.length);
+    fun getBitmap(data: ByteBuffer, metadata: FrameMetadata): Bitmap? {
+        data.rewind()
+        val imageInBuffer = ByteArray(data.limit())
+        data[imageInBuffer, 0, imageInBuffer.size]
         try {
-            YuvImage image = new YuvImage(imageInBuffer, ImageFormat.NV21, metadata.getWidth(), metadata.getHeight(), null);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            image.compressToJpeg(new Rect(0, 0, metadata.getWidth(), metadata.getHeight()), 80, stream);
-
-            Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
-
-            stream.close();
-            return rotateBitmap(bmp, metadata.getRotation());
-        } catch (Exception e) {
-            Log.e("VisionProcessorBase", "Error: " + e.getMessage());
+            val image =
+                YuvImage(imageInBuffer, ImageFormat.NV21, metadata.width, metadata.height, null)
+            val stream = ByteArrayOutputStream()
+            image.compressToJpeg(Rect(0, 0, metadata.width, metadata.height), 80, stream)
+            val bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size())
+            stream.close()
+            return rotateBitmap(bmp, metadata.rotation)
+        } catch (e: Exception) {
+            Log.e("VisionProcessorBase", "Error: " + e.message)
         }
-        return null;
+        return null
     }
 
     /**
      * Converts a YUV_420_888 image from CameraX API to a bitmap.
      */
-    @Nullable
     @ExperimentalGetImage
-    public static Bitmap getBitmap(ImageProxy image) {
-        FrameMetadata frameMetadata = new FrameMetadata.Builder().setWidth(image.getWidth()).setHeight(image.getHeight()).setRotation(image.getImageInfo().getRotationDegrees()).build();
-
-        ByteBuffer nv21Buffer = yuv420ThreePlanesToNV21(image.getImage().getPlanes(), image.getWidth(), image.getHeight());
-        return getBitmap(nv21Buffer, frameMetadata);
+    fun getBitmap(image: ImageProxy): Bitmap? {
+        val frameMetadata = FrameMetadata.Builder().setWidth(image.width).setHeight(image.height)
+            .setRotation(image.imageInfo.rotationDegrees).build()
+        val nv21Buffer = yuv420ThreePlanesToNV21(
+            image.image!!.planes, image.width, image.height
+        )
+        return getBitmap(nv21Buffer, frameMetadata)
     }
 
     /**
      * Rotates a bitmap if it is converted from a bytebuffer.
      */
-    private static Bitmap rotateBitmap(Bitmap bitmap, int rotationDegrees) {
-        Matrix matrix = new Matrix();
+    private fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
+        val matrix = Matrix()
 
         // Rotate the image back to straight.
-        matrix.postRotate(rotationDegrees);
+        matrix.postRotate(rotationDegrees.toFloat())
 
         // Mirror the image along the X or Y axis.
-        matrix.postScale(1.0f, 1.0f);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        matrix.postScale(1.0f, 1.0f)
+        val rotatedBitmap =
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
         // Recycle the old bitmap if it has changed.
         if (rotatedBitmap != bitmap) {
-            bitmap.recycle();
+            bitmap.recycle()
         }
-        return rotatedBitmap;
+        return rotatedBitmap
     }
 
     /**
      * Converts YUV_420_888 to NV21 bytebuffer.
      *
-     * <p>The NV21 format consists of a single byte array containing the Y, U and V values. For an
+     *
+     * The NV21 format consists of a single byte array containing the Y, U and V values. For an
      * image of size S, the first S positions of the array contain all the Y values. The remaining
      * positions contain interleaved V and U values. U and V are subsampled by a factor of 2 in both
      * dimensions, so there are S/4 U values and S/4 V values. In summary, the NV21 array will contain
      * S Y values followed by S/4 VU values: YYYYYYYYYYYYYY(...)YVUVUVUVU(...)VU
      *
-     * <p>YUV_420_888 is a generic format that can describe any YUV image where U and V are subsampled
-     * by a factor of 2 in both dimensions. {@link Image#getPlanes} returns an array with the Y, U and
+     *
+     * YUV_420_888 is a generic format that can describe any YUV image where U and V are subsampled
+     * by a factor of 2 in both dimensions. [Image.getPlanes] returns an array with the Y, U and
      * V planes. The Y plane is guaranteed not to be interleaved, so we can just copy its values into
      * the first part of the NV21 array. The U and V planes may already have the representation in the
      * NV21 format. This happens if the planes share the same buffer, the V buffer is one position
      * before the U buffer and the planes have a pixelStride of 2. If this is case, we can just copy
      * them to the NV21 array.
      */
-    private static ByteBuffer yuv420ThreePlanesToNV21(Plane[] yuv420888planes, int width, int height) {
-        int imageSize = width * height;
-        byte[] out = new byte[imageSize + 2 * (imageSize / 4)];
-
+    private fun yuv420ThreePlanesToNV21(
+        yuv420888planes: Array<Plane>,
+        width: Int,
+        height: Int
+    ): ByteBuffer {
+        val imageSize = width * height
+        val out = ByteArray(imageSize + 2 * (imageSize / 4))
         if (areUVPlanesNV21(yuv420888planes, width, height)) {
             // Copy the Y values.
-            yuv420888planes[0].getBuffer().get(out, 0, imageSize);
-
-            ByteBuffer uBuffer = yuv420888planes[1].getBuffer();
-            ByteBuffer vBuffer = yuv420888planes[2].getBuffer();
+            yuv420888planes[0].buffer[out, 0, imageSize]
+            val uBuffer = yuv420888planes[1].buffer
+            val vBuffer = yuv420888planes[2].buffer
             // Get the first V value from the V buffer, since the U buffer does not contain it.
-            vBuffer.get(out, imageSize, 1);
+            vBuffer[out, imageSize, 1]
             // Copy the first U value and the remaining VU values from the U buffer.
-            uBuffer.get(out, imageSize + 1, 2 * imageSize / 4 - 1);
+            uBuffer[out, imageSize + 1, 2 * imageSize / 4 - 1]
         } else {
             // Fallback to copying the UV values one by one, which is slower but also works.
             // Unpack Y.
-            unpackPlane(yuv420888planes[0], width, height, out, 0, 1);
+            unpackPlane(yuv420888planes[0], width, height, out, 0, 1)
             // Unpack U.
-            unpackPlane(yuv420888planes[1], width, height, out, imageSize + 1, 2);
+            unpackPlane(yuv420888planes[1], width, height, out, imageSize + 1, 2)
             // Unpack V.
-            unpackPlane(yuv420888planes[2], width, height, out, imageSize, 2);
+            unpackPlane(yuv420888planes[2], width, height, out, imageSize, 2)
         }
-
-        return ByteBuffer.wrap(out);
+        return ByteBuffer.wrap(out)
     }
 
     /**
      * Checks if the UV plane buffers of a YUV_420_888 image are in the NV21 format.
      */
-    private static boolean areUVPlanesNV21(Plane[] planes, int width, int height) {
-        int imageSize = width * height;
-
-        ByteBuffer uBuffer = planes[1].getBuffer();
-        ByteBuffer vBuffer = planes[2].getBuffer();
+    private fun areUVPlanesNV21(planes: Array<Plane>, width: Int, height: Int): Boolean {
+        val imageSize = width * height
+        val uBuffer = planes[1].buffer
+        val vBuffer = planes[2].buffer
 
         // Backup buffer properties.
-        int vBufferPosition = vBuffer.position();
-        int uBufferLimit = uBuffer.limit();
+        val vBufferPosition = vBuffer.position()
+        val uBufferLimit = uBuffer.limit()
 
         // Advance the V buffer by 1 byte, since the U buffer will not contain the first V value.
-        vBuffer.position(vBufferPosition + 1);
+        vBuffer.position(vBufferPosition + 1)
         // Chop off the last byte of the U buffer, since the V buffer will not contain the last U value.
-        uBuffer.limit(uBufferLimit - 1);
+        uBuffer.limit(uBufferLimit - 1)
 
         // Check that the buffers are equal and have the expected number of elements.
-        boolean areNV21 = (vBuffer.remaining() == (2 * imageSize / 4 - 2)) && (vBuffer.compareTo(uBuffer) == 0);
+        val areNV21 =
+            vBuffer.remaining() == 2 * imageSize / 4 - 2 && vBuffer.compareTo(uBuffer) == 0
 
         // Restore buffers to their initial state.
-        vBuffer.position(vBufferPosition);
-        uBuffer.limit(uBufferLimit);
-
-        return areNV21;
+        vBuffer.position(vBufferPosition)
+        uBuffer.limit(uBufferLimit)
+        return areNV21
     }
 
     /**
      * Unpack an image plane into a byte array.
      *
-     * <p>The input plane data will be copied in 'out', starting at 'offset' and every pixel will be
+     *
+     * The input plane data will be copied in 'out', starting at 'offset' and every pixel will be
      * spaced by 'pixelStride'. Note that there is no row padding on the output.
      */
-    private static void unpackPlane(Plane plane, int width, int height, byte[] out, int offset, int pixelStride) {
-        ByteBuffer buffer = plane.getBuffer();
-        buffer.rewind();
+    private fun unpackPlane(
+        plane: Plane,
+        width: Int,
+        height: Int,
+        out: ByteArray,
+        offset: Int,
+        pixelStride: Int
+    ) {
+        val buffer = plane.buffer
+        buffer.rewind()
 
         // Compute the size of the current plane.
         // We assume that it has the aspect ratio as the original image.
-        int numRow = (buffer.limit() + plane.getRowStride() - 1) / plane.getRowStride();
+        val numRow = (buffer.limit() + plane.rowStride - 1) / plane.rowStride
         if (numRow == 0) {
-            return;
+            return
         }
-        int scaleFactor = height / numRow;
-        int numCol = width / scaleFactor;
+        val scaleFactor = height / numRow
+        val numCol = width / scaleFactor
 
         // Extract the data in the output buffer.
-        int outputPos = offset;
-        int rowStart = 0;
-        for (int row = 0; row < numRow; row++) {
-            int inputPos = rowStart;
-            for (int col = 0; col < numCol; col++) {
-                out[outputPos] = buffer.get(inputPos);
-                outputPos += pixelStride;
-                inputPos += plane.getPixelStride();
+        var outputPos = offset
+        var rowStart = 0
+        for (row in 0 until numRow) {
+            var inputPos = rowStart
+            for (col in 0 until numCol) {
+                out[outputPos] = buffer[inputPos]
+                outputPos += pixelStride
+                inputPos += plane.pixelStride
             }
-            rowStart += plane.getRowStride();
+            rowStart += plane.rowStride
         }
+    }
+
+
+    fun imageToBitmap(image: ImageProxy): Bitmap? {
+        val buffer = image.planes[0].buffer
+        val bytes = ByteArray(buffer.capacity()).also { buffer.get(it) }
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }
+
+    fun convertBitmapToBase64(bitmap: Bitmap): String? {
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos)
+        val b = baos.toByteArray()
+        return Base64.encodeToString(b, Base64.NO_WRAP)
     }
 }
