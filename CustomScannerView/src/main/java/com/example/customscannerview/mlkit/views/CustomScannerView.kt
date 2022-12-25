@@ -303,7 +303,7 @@ class CustomScannerView(
         } else mBitmap
     }
 
-    private val repository = Repository(ServiceBuilder.buildService(OcrApiService::class.java))
+    private val repository = OCRRepository(ServiceBuilder.buildService(OcrApiService::class.java))
     private val isQAVariant = true
 
     suspend fun callOCR(onScanResult: OCRResult, baseImage: String) {
