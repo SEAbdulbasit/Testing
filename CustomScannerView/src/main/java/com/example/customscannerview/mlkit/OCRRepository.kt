@@ -11,7 +11,7 @@ import com.example.customscannerview.mlkit.modelclasses.ocr_request.OcrRequest
 import com.example.customscannerview.mlkit.service.OcrApiService
 import com.google.mlkit.vision.barcode.common.Barcode
 
-class Repository(private val apiService: OcrApiService) {
+class OCRRepository(private val apiService: OcrApiService) {
 
     suspend fun analyseOCRAsync(ocrRequestParent: OCRRequestParent): OCRResponseParent {
         return when (ocrRequestParent) {
