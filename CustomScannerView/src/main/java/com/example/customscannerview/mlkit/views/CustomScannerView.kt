@@ -327,7 +327,7 @@ class CustomScannerView(
     suspend fun callOCR(onScanResult: OCRResult, baseImage: String) {
         try {
             val response = repository.analyseOCRAsync(
-                getOCRRequest(
+                repository.getOCRRequest(
                     multipleBarcodes.value ?: emptyList(), baseImage, isQAVariant
                 )
             )
@@ -342,30 +342,6 @@ class CustomScannerView(
                 onScanResult.onOCRResponseFailed(e)
             }
 
-        }
-    }
-
-    private fun getOCRRequest(
-        barcodesList: List<Barcode>, baseImage: String, isQAVariant: Boolean
-    ): OCRRequestParent {
-        return if (isQAVariant) {
-            OCRQARequest(
-                barcode = BarcodeX(listOf(barcodesList.map { barcode ->
-                    FrameX(
-                        barcode.displayValue, barcode.format.toString()
-                    )
-                }.toList())),
-                callType = "extract",
-                extractTime = "2022-08-29T05:58:28.902Z",
-                image = baseImage,
-                orgUuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                platform = "API"
-            )
-
-        } else {
-            OcrRequest(image_url = "data:image/jpeg;base64,$baseImage",
-                type = "shipping_label",
-                barcode_values = barcodesList.map { it.displayValue!! })
         }
     }
 }
