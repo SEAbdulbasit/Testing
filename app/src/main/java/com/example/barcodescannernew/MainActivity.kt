@@ -199,19 +199,11 @@ class MainActivity : AppCompatActivity(), OCRResult {
                                     }
                                 }
                             }
-                        }/*else{
-                            if(isManualModeActive){
-                                isManualModeActive=false
-                                showErrorDialog()
-                            }
-                        }*/
-
+                        }
                     }
-
                 }
             }
         }
-
     }
 
 
@@ -348,7 +340,6 @@ class MainActivity : AppCompatActivity(), OCRResult {
                             )
                         }
                     }
-
                     true
                 }
 
@@ -370,7 +361,6 @@ class MainActivity : AppCompatActivity(), OCRResult {
                             )
                         }
                     }
-
                     true
                 }
 
@@ -569,10 +559,8 @@ class MainActivity : AppCompatActivity(), OCRResult {
         resultDialog =
             AlertDialog.Builder(this).setCancelable(false).setTitle("SCAN RESULT").create()
         failureDialog =
-            AlertDialog.Builder(this).setCancelable(false).setTitle("SCAN FAILED").create()/* multiBarcodesDialog.dialog?.setOnCancelListener {
-             binding.camIcon.isEnabled = true
-             binding.scannerView.imageView.hide()
-         }*/
+            AlertDialog.Builder(this).setCancelable(false).setTitle("SCAN FAILED").create()
+
         settingsFragment = Dialog(this, android.R.style.Theme_Translucent_NoTitleBar)
 
         val v = LayoutInflater.from(this).inflate(R.layout.setting_sheet_view, null, false)
@@ -588,21 +576,7 @@ class MainActivity : AppCompatActivity(), OCRResult {
 
         settingsFragment.findViewById<ImageView>(R.id.btnDownSetting).setOnClickListener {
             settingsFragment.dismiss()
-        }/*settingsFragment.findViewById<ImageView>(R.id.btnDownSetting)
-            .setOnClickListener {
-                if(settingsFragment.findViewById<SwitchCompat>(R.id.btnSwitchSetting).isChecked){
-                    binding.customScannerView.startScanning(ViewType.FULLSCRREN,ScanType.FULL)
-                    isMultiDetectionEnabled=true
-                    binding.btnSwitch.visibility=View.GONE
-                }
-                else{
-                binding.btnSwitch.checkedRadioButtonId==R.id.radioManual
-                binding.btnSwitch.visibility=View.VISIBLE
-                settingsFragment.dismiss()
-                    isMultiDetectionEnabled=false
-                binding.customScannerView.startScanning(ViewType.RECTANGLE,ScanType.MANUAL)
-                }
-            }*/
+        }
         settingsFragment.findViewById<SwitchCompat>(R.id.btnSwitchSetting)
             .setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {/*binding.customScannerView.startScanning(ViewType.FULLSCRREN,ScanType.FULL)
