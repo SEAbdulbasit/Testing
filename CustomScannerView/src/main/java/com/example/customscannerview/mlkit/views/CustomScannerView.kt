@@ -53,8 +53,7 @@ class CustomScannerView(
     private var cameraExecutor: ExecutorService? = null
     lateinit var imageView: ImageView
     var imageProcessor: VisionImageProcessor? = null
-    var rectangleView = RectangleView(context, attrs)
-    var squareView = SquareView(context, attrs)
+    var scanningWindow = ScanningWindow(context, attrs)
     private var needUpdateGraphicOverlayImageSourceInfo = false
     private lateinit var previewView: PreviewView
     private lateinit var graphicOverlay: GraphicOverlay
@@ -85,34 +84,22 @@ class CustomScannerView(
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         if (viewType == ViewType.RECTANGLE) {
-            rectangleView.post {
-                rectangleView.setRectangleViewFinder()
+            scanningWindow.post {
+                scanningWindow.setRectangleViewFinder()
             }
-
-            squareView.post {
-                squareView.setSquareViewFinder()
-            }
-            addView(rectangleView)
-            addView(squareView)
-            squareView.visibility = View.GONE
-            rectangleView.visibility = View.VISIBLE
+            addView(scanningWindow)
+            scanningWindow.visibility = View.VISIBLE
             initiateCamera(viewType, scanType)
         } else if (viewType == ViewType.SQUARE) {
-            rectangleView.post {
-                rectangleView.setRectangleViewFinder()
+            scanningWindow.post {
+                scanningWindow.setSquareViewFinder()
             }
 
-            squareView.post {
-                squareView.setSquareViewFinder()
-            }
-            addView(rectangleView)
-            addView(squareView)
-            squareView.visibility = View.VISIBLE
-            rectangleView.visibility = View.GONE
+            addView(scanningWindow)
+            scanningWindow.visibility = View.GONE
             initiateCamera(viewType, scanType)
         } else if (viewType == ViewType.FULLSCRREN) {
-            rectangleView.visibility = GONE
-            squareView.visibility = GONE
+            scanningWindow.visibility = GONE
             if (scanType == ScanType.FULL) {
                 initiateCamera(viewType, scanType)
             } else {
@@ -149,7 +136,7 @@ class CustomScannerView(
     }
 
     private fun getScanningRect(): RectF? {
-        return if (selectedViewType == ViewType.RECTANGLE) rectangleView.scanningBoxRect else squareView.scanningBoxRect
+        return scanningWindow.scanningBoxRect
     }
 
     @SuppressLint("RestrictedApi")
@@ -323,7 +310,6 @@ class CustomScannerView(
                 removeView(imageView)
                 onScanResult.onOCRResponseFailed(e)
             }
-
         }
     }
 }
