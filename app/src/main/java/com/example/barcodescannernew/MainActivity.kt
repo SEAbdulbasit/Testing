@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -41,18 +42,17 @@ import com.example.barcodescannernew.utils.show
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OCRResult
-import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.example.customscannerview.mlkit.modelclasses.OCRResponseDemo
 import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
 import com.example.customscannerview.mlkit.modelclasses.OcrResponse
+import com.example.customscannerview.mlkit.views.CaptureCallback
 import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.text.Text
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), OnScanResult, OCRResult {
+class MainActivity : AppCompatActivity(), OCRResult {
     lateinit var binding: ActivityMainBinding
     lateinit var barcodeNotFoundBinding: BarcodeNotFoundViewBinding
     private var doNotShowDialog: Boolean = false
@@ -97,8 +97,6 @@ class MainActivity : AppCompatActivity(), OnScanResult, OCRResult {
             isManualModeActive = false
         }
         binding.customScannerView.barcodeResultSingle.observe(this) { barCodeResult ->
-
-
             if (!doNotShowDialog) {
                 if (TWO_DIMENSIONAL_FORMATS.contains(barCodeResult.format)) {
                     if (binding.customScannerView.selectedViewType == ViewType.SQUARE) {
@@ -130,14 +128,14 @@ class MainActivity : AppCompatActivity(), OnScanResult, OCRResult {
             }
 
         }
-        binding.customScannerView.textResult.observe(this) { text ->
+        binding.customScannerView.textIndicator.observe(this) { text ->
             if (text.textBlocks.isEmpty()) {
                 binding.textDetector.setImageResource(R.drawable.ic_text_inactive)
             } else {
                 binding.textDetector.setImageResource(R.drawable.ic_text_active)
             }
         }
-        binding.customScannerView.onSomethingDetected.observe(this) { barcodeList ->
+        binding.customScannerView.barcodeIndicators.observe(this) { barcodeList ->
             if (barcodeList.size == 0) {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(2000)
@@ -248,13 +246,24 @@ class MainActivity : AppCompatActivity(), OnScanResult, OCRResult {
         failureDialog.show()
     }
 
+    private val imageCaptureCallback = object : CaptureCallback {
+        override fun onImageCaptured(bitmap: Bitmap, value: MutableList<Barcode>?) {
+            binding.customScannerView.makeOCRApiCall(
+                bitmap,
+                value?.toList() ?: emptyList(),
+                this@MainActivity
+            )
+        }
+
+    }
+
     private fun setUpClickListener() {
         binding.camIcon.setOnClickListener {
             if (isOCREnabled) {
                 if (!isMultiDetectionEnabled) {
                     binding.progressBar.bringToFront()
                     binding.progressBar.show()
-                    binding.customScannerView.captureImage(this)
+                    binding.customScannerView.captureImage(imageCaptureCallback)
                     binding.camIcon.isEnabled = false
                     showOCRDialog()
                 } else {
@@ -1276,14 +1285,6 @@ class MainActivity : AppCompatActivity(), OnScanResult, OCRResult {
         }
     }
 
-    override fun onViewDetected(barCodeResult: MutableList<Barcode>) {
-
-    }
-
-    override fun onMultiBarcodesDetected(barcodes: List<Barcode>) {
-
-    }
-
     override fun onOCRResponse(ocrResponse: OCRResponseParent?) {
         binding.progressBar.hide()
         when (ocrResponse) {
@@ -1310,9 +1311,5 @@ class MainActivity : AppCompatActivity(), OnScanResult, OCRResult {
         OCRDialog.dismiss()
         binding.camIcon.isEnabled = true
         Toast.makeText(this, "Failed: ${throwable.toString()}", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onSomeTextDetected(text: Text) {
-
     }
 }

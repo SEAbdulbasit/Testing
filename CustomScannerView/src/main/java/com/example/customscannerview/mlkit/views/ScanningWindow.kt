@@ -32,11 +32,14 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
     private var boxRect: RectF? = null
     var scanningBoxRect: RectF? = null
 
-    fun setRectangleViewFinder() {
+    fun setRectangleViewFinder(barcodeWindow: ScanWindow) {
         val overlayWidth = width.toFloat()
         val overlayHeight = height.toFloat()
-        val boxWidth = (overlayWidth * 0.85).toFloat()
-        val boxHeight = (overlayHeight * 0.23).toFloat()
+        val boxWidth =
+            if (barcodeWindow.width == 0f) (overlayWidth * 0.85).toFloat() else barcodeWindow.width
+        val boxHeight =
+            if (barcodeWindow.height == 0f) (overlayHeight * 0.23).toFloat() else barcodeWindow.height
+
         val cx = overlayWidth / 2
         val cy = overlayHeight / 2
         boxRect = RectF(
@@ -48,11 +51,15 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
         boxBottomSide = cy + boxHeight / 4.5f
         invalidate()
     }
-    fun setSquareViewFinder() {
+
+    fun setSquareViewFinder(barcodeWindow: ScanWindow) {
         val overlayWidth = width.toFloat()
         val overlayHeight = height.toFloat()
-        val boxWidth = overlayWidth * 72 / 100
-        val boxHeight = overlayHeight * 38 / 100
+        val boxWidth =
+            if (barcodeWindow.width == 0f) (overlayWidth * 0.72.toFloat()) else barcodeWindow.width
+        val boxHeight =
+            if (barcodeWindow.height == 0f) (overlayHeight * 0.38.toFloat()) else barcodeWindow.height
+
         val cx = overlayWidth / 2
         val cy = overlayHeight / 2
         boxRect = RectF(
@@ -72,7 +79,7 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
         super.draw(canvas)
         boxRect?.let {
             // Draws the dark background scrim and leaves the box area clear.
-            canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), scrimPaint)
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), scrimPaint)
             // As the stroke is always centered, so erase twice with FILL and STROKE respectively to clear
             // all area that the box rect would occupy.
             eraserPaint.style = Paint.Style.FILL

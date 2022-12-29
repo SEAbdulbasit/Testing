@@ -19,7 +19,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.example.customscannerview.mlkit.*
-import com.example.customscannerview.mlkit.BitmapUtils.convertBitmapToBase64
 import com.example.customscannerview.mlkit.BitmapUtils.imageToBitmap
 import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
@@ -60,9 +59,9 @@ class CustomScannerView(
     lateinit var selectedViewType: ViewType
     private lateinit var cameraControls: CameraControl
     val barcodeResultSingle = MutableLiveData<Barcode>()
-    val textResult = MutableLiveData<Text>()
+    val textIndicator = MutableLiveData<Text>()
     val multipleBarcodes = MutableLiveData<MutableList<Barcode>>()
-    val onSomethingDetected = MutableLiveData<MutableList<Barcode>>()
+    val barcodeIndicators = MutableLiveData<MutableList<Barcode>>()
     private val testBarcodes = mutableListOf<Barcode>()
 
 
@@ -85,18 +84,18 @@ class CustomScannerView(
 
         if (viewType == ViewType.RECTANGLE) {
             scanningWindow.post {
-                scanningWindow.setRectangleViewFinder()
+                scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
             }
             addView(scanningWindow)
             scanningWindow.visibility = View.VISIBLE
             initiateCamera(viewType, scanType)
         } else if (viewType == ViewType.SQUARE) {
             scanningWindow.post {
-                scanningWindow.setSquareViewFinder()
+                scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
             }
 
             addView(scanningWindow)
-            scanningWindow.visibility = View.GONE
+            scanningWindow.visibility = View.VISIBLE
             initiateCamera(viewType, scanType)
         } else if (viewType == ViewType.FULLSCRREN) {
             scanningWindow.visibility = GONE
@@ -213,7 +212,7 @@ class CustomScannerView(
     }
 
     override fun onTextDetected(text: Text) {
-        textResult.postValue(text)
+        textIndicator.postValue(text)
     }
 
     override fun onMultiBarcodeScanned(barcodes: MutableList<Barcode>) {
@@ -233,7 +232,7 @@ class CustomScannerView(
     }
 
     override fun onViewDetected(barCodeResult: MutableList<Barcode>) {
-        onSomethingDetected.postValue(barCodeResult)
+        barcodeIndicators.postValue(barCodeResult)
     }
 
 
@@ -244,17 +243,16 @@ class CustomScannerView(
     }
 
     override fun onSomeTextDetected(text: Text) {
-        textResult.postValue(text)
+        textIndicator.postValue(text)
     }
 
 
-    fun captureImage(onScanResult: OCRResult) {
+    fun captureImage(captureCallback: CaptureCallback) {
         imageCapture.takePicture(cameraExecutor!!, object : ImageCapture.OnImageCapturedCallback() {
             @SuppressLint("UnsafeOptInUsageError")
             override fun onCaptureSuccess(imageProxy: ImageProxy) {
                 var bitmap = imageToBitmap(imageProxy)
                 bitmap = fixOrientation(bitmap!!)
-                var string64: String
                 imageView = ImageView(context)
                 val params = LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
@@ -262,17 +260,8 @@ class CustomScannerView(
                 imageView.layoutParams = params
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-                CoroutineScope(Dispatchers.Main).launch {
-                    imageView.setImageBitmap(bitmap)
-                    addView(imageView)
-                }
-                CoroutineScope(Dispatchers.IO).launch {
-                    string64 = convertBitmapToBase64(bitmap!!).toString()
-                    callOCR(onScanResult, string64)
-                }
-
+                captureCallback.onImageCaptured(bitmap, multipleBarcodes.value)
                 imageProxy.close()
-
             }
 
             override fun onError(exception: ImageCaptureException) {
@@ -293,11 +282,26 @@ class CustomScannerView(
     private val repository = OCRRepository(ServiceBuilder.buildService(OcrApiService::class.java))
     private val isQAVariant = true
 
-    suspend fun callOCR(onScanResult: OCRResult, baseImage: String) {
+    fun makeOCRApiCall(bitmap: Bitmap, barcodeList: List<Barcode>, onScanResult: OCRResult) {
+        CoroutineScope(Dispatchers.Main).launch {
+            imageView.setImageBitmap(bitmap)
+            addView(imageView)
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            val string64 = BitmapUtils.convertBitmapToBase64(bitmap).toString()
+            ocrcall(onScanResult, string64, barcodeList)
+        }
+    }
+
+    private suspend fun ocrcall(
+        onScanResult: OCRResult,
+        baseImage: String,
+        barcodeList: List<Barcode>
+    ) {
         try {
             val response = repository.analyseOCRAsync(
                 repository.getOCRRequest(
-                    multipleBarcodes.value ?: emptyList(), baseImage, isQAVariant
+                    barcodeList, baseImage, isQAVariant
                 )
             )
             withContext(Dispatchers.Main) {
@@ -312,4 +316,30 @@ class CustomScannerView(
             }
         }
     }
+
+    var configuration = Configuration(
+        barcodeWindow = ScanWindow(0f, 0f, 10f),
+        qrCodeWindow = ScanWindow(0f, 0f, 10f),
+    )
+
+    fun setScanningWindowConfiguration(conf: Configuration) {
+        this.configuration = conf
+        when (selectedViewType) {
+            ViewType.RECTANGLE -> scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
+            ViewType.SQUARE -> scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
+            ViewType.FULLSCRREN -> {}
+        }
+    }
 }
+
+interface CaptureCallback {
+    fun onImageCaptured(bitmap: Bitmap, value: MutableList<Barcode>?)
+}
+
+
+data class Configuration(
+    val barcodeWindow: ScanWindow,
+    val qrCodeWindow: ScanWindow
+)
+
+data class ScanWindow(val width: Float, val height: Float, val radius: Float)
