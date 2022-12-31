@@ -8,7 +8,7 @@ def getGroupId = { ->
 }
 
 def getArtificatId = { ->
-    return "custom_scanner_view"
+    return "scanner-view"
 }
 
 def getVersionName = { ->
@@ -22,7 +22,7 @@ publishing {
             groupId getGroupId()
             artifactId getArtificatId()
             version getVersionName()
-            artifact("$buildDir/outputs/aar/${getArtifactId()}-release.aar")
+            artifact("$buildDir/outputs/aar/${getArtifactId()}.aar")
 
             pom.withXml {
                 // add dependencies to pom
@@ -49,7 +49,7 @@ publishing {
              ** Replace GITHUB_USERID with your/organisation Github userID
              ** and REPOSITORY with the repository name on GitHub
              */
-            url = uri("https://maven.pkg.github.com/SEabdulbasit/Testing")
+            url = uri("https://maven.pkg.github.com/SEAbdulBasit/Testing")
 
             credentials {
                 username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")

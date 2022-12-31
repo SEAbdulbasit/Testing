@@ -26,7 +26,7 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
     private val eraserPaint: Paint = Paint().apply {
         xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
-    private val boxCornerRadius: Float =
+    private var boxCornerRadius: Float =
         context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_corner_radius).toFloat()
 
     private var boxRect: RectF? = null
@@ -49,6 +49,8 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
         boxTopSide = cy - boxHeight / 1.5f
         boxRightSide = cx + boxWidth / 2
         boxBottomSide = cy + boxHeight / 4.5f
+        boxCornerRadius = barcodeWindow.radius
+
         invalidate()
     }
 
@@ -72,6 +74,8 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
         boxTopSide = cy - boxHeight / 1.5f
         boxRightSide = cx + boxWidth / 2
         boxBottomSide = cy + boxHeight / 4.5f
+        boxCornerRadius = barcodeWindow.radius
+
         invalidate()
     }
 

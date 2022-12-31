@@ -20,7 +20,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.example.customscannerview.mlkit.*
 import com.example.customscannerview.mlkit.BitmapUtils.imageToBitmap
-import com.example.customscannerview.mlkit.enums.ScanType
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OCRResult
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
@@ -56,7 +55,7 @@ class CustomScannerView(
     private var needUpdateGraphicOverlayImageSourceInfo = false
     private lateinit var previewView: PreviewView
     private lateinit var graphicOverlay: GraphicOverlay
-    lateinit var selectedViewType: ViewType
+    var selectedViewType: ViewType = ViewType.RECTANGLE
     private lateinit var cameraControls: CameraControl
     val barcodeResultSingle = MutableLiveData<Barcode>()
     val textIndicator = MutableLiveData<Text>()
@@ -65,7 +64,7 @@ class CustomScannerView(
     private val testBarcodes = mutableListOf<Barcode>()
 
 
-    fun startScanning(viewType: ViewType, scanType: ScanType) {
+    fun startScanning(viewType: ViewType) {
         selectedViewType = viewType
 
         // design work
@@ -88,7 +87,7 @@ class CustomScannerView(
             }
             addView(scanningWindow)
             scanningWindow.visibility = View.VISIBLE
-            initiateCamera(viewType, scanType)
+            initiateCamera(viewType)
         } else if (viewType == ViewType.SQUARE) {
             scanningWindow.post {
                 scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
@@ -96,20 +95,15 @@ class CustomScannerView(
 
             addView(scanningWindow)
             scanningWindow.visibility = View.VISIBLE
-            initiateCamera(viewType, scanType)
+            initiateCamera(viewType)
         } else if (viewType == ViewType.FULLSCRREN) {
             scanningWindow.visibility = GONE
-            if (scanType == ScanType.FULL) {
-                initiateCamera(viewType, scanType)
-            } else {
-                initiateCamera(viewType, scanType)
-            }
-
+            initiateCamera(viewType)
         }
 
     }
 
-    private fun initiateCamera(viewType: ViewType, scanType: ScanType) {
+    private fun initiateCamera(viewType: ViewType) {
         cameraSelector =
             CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
 
@@ -129,7 +123,7 @@ class CustomScannerView(
         } else {
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
-                bindPreview(cameraProvider, scanType)
+                bindPreview(cameraProvider)
             }, ContextCompat.getMainExecutor(context))
         }
     }
@@ -139,27 +133,19 @@ class CustomScannerView(
     }
 
     @SuppressLint("RestrictedApi")
-    private fun bindPreview(cameraProvider: ProcessCameraProvider, scanType: ScanType) {
+    private fun bindPreview(cameraProvider: ProcessCameraProvider) {
         cameraProvider.unbindAll()
         removeAllViews()
         addView(previewView)
         preview?.setSurfaceProvider(previewView.surfaceProvider)
+
         val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(width, height))
             .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST).build()
-        if (scanType == ScanType.OCR) {
-            cameraProvider.unbindAll()
-            imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
-            cameraProvider.bindToLifecycle(
-                context as LifecycleOwner, cameraSelector, imageCapture, imageAnalysis, preview
-            )
-        } else if (scanType == ScanType.FULL) {
-            imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
-            cameraControls = cameraProvider.bindToLifecycle(
-                context as LifecycleOwner, cameraSelector, preview, imageAnalysis
-            ).cameraControl
-        }
-
-
+        cameraProvider.unbindAll()
+        imageAnalysis.setAnalyzer(cameraExecutor!!, analyzer)
+        cameraProvider.bindToLifecycle(
+            context as LifecycleOwner, cameraSelector, imageCapture, imageAnalysis, preview
+        )
     }
 
     private fun bindAllCameraUseCases(cameraSelector: CameraSelector) {
