@@ -5,3 +5,4 @@ enum class ViewType {
     SQUARE,
     FULLSCRREN
 }
+

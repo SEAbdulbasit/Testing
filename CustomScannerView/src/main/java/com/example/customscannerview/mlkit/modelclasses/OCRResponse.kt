@@ -4,7 +4,7 @@ package com.example.customscannerview.mlkit.modelclasses
 import com.example.customscannerview.mlkit.modelclasses.ocr_response_demo.Data
 import com.google.gson.annotations.SerializedName
 
-data class OCRResponseDemo(
+data class OCRResponse(
     @SerializedName("data")
     val `data`: Data?,
     @SerializedName("endpoint")
@@ -19,4 +19,4 @@ data class OCRResponseDemo(
     val pagination: Any?,
     @SerializedName("status")
     val status: Int?
-) : OCRResponseParent
+)

@@ -16,4 +16,4 @@ data class OCRQARequest(
     val orgUuid: String?,
     @SerializedName("platform")
     val platform: String?
-) : OCRRequestParent
+)

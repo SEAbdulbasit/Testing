@@ -39,20 +39,23 @@ import com.example.barcodescannernew.utils.copyToClipboard
 import com.example.barcodescannernew.utils.getCarrierNameFromKey
 import com.example.barcodescannernew.utils.hide
 import com.example.barcodescannernew.utils.show
-import com.example.customscannerview.mlkit.enums.ScanType
+import com.example.customscannerview.mlkit.Environment
+import com.example.customscannerview.mlkit.VisionSDK
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OCRResult
-import com.example.customscannerview.mlkit.modelclasses.OCRResponseDemo
-import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
-import com.example.customscannerview.mlkit.modelclasses.OcrResponse
+import com.example.customscannerview.mlkit.interfaces.OCRResultQA
+import com.example.customscannerview.mlkit.modelclasses.OCRResponse
+import com.example.customscannerview.mlkit.modelclasses.OcrResponseQA
 import com.example.customscannerview.mlkit.views.CaptureCallback
+import com.example.customscannerview.mlkit.views.Configuration
+import com.example.customscannerview.mlkit.views.ScanWindow
 import com.google.mlkit.vision.barcode.common.Barcode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), OCRResult {
+class MainActivity : AppCompatActivity(), OCRResult, OCRResultQA {
     lateinit var binding: ActivityMainBinding
     lateinit var barcodeNotFoundBinding: BarcodeNotFoundViewBinding
     private var doNotShowDialog: Boolean = false
@@ -80,6 +83,11 @@ class MainActivity : AppCompatActivity(), OCRResult {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        VisionSDK.getInstance().initialise(
+            apiKey = if (isQAVariant) "knF8L0CXTX4brmUCxvPzaauERYMshVg35yL6HIl6" else "key_stag_7da7b5e917tq2eCckhc5QnTr1SfpvFGjwbTfpu1SQYy242xPjBz2mk3hbtzN6eB85MftxVw1zj5K5XBF",
+            environment = Environment.STAGING
+        )
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         if (!allRuntimePermissionsGranted()) {
@@ -206,6 +214,22 @@ class MainActivity : AppCompatActivity(), OCRResult {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.customScannerView.setScanningWindowConfiguration(
+            Configuration(
+                barcodeWindow = ScanWindow(
+                    width = ((binding.root.width * 0.9).toFloat()),
+                    height = ((binding.root.width * 0.4).toFloat()),
+                    radius = 100f
+                ), qrCodeWindow = ScanWindow(
+                    width = ((binding.root.width * 0.7).toFloat()),
+                    height = ((binding.root.width * 0.7).toFloat()),
+                    radius = 20f
+                )
+            )
+        )
+    }
 
     private fun showErrorDialog() {
         val view = binding.customScannerView.selectedViewType
@@ -238,13 +262,18 @@ class MainActivity : AppCompatActivity(), OCRResult {
         failureDialog.show()
     }
 
+    val isQAVariant = false
     private val imageCaptureCallback = object : CaptureCallback {
         override fun onImageCaptured(bitmap: Bitmap, value: MutableList<Barcode>?) {
-            binding.customScannerView.makeOCRApiCall(
-                bitmap,
-                value?.toList() ?: emptyList(),
-                this@MainActivity
-            )
+            if (isQAVariant.not()) {
+                binding.customScannerView.makeOCRApiCall(
+                    bitmap, value?.toList() ?: emptyList(), this@MainActivity
+                )
+            } else {
+                binding.customScannerView.makeQAOCRApiCall(
+                    bitmap, value?.toList() ?: emptyList(), this@MainActivity
+                )
+            }
         }
 
     }
@@ -328,15 +357,15 @@ class MainActivity : AppCompatActivity(), OCRResult {
                     binding.customScannerView.stopScanning()
                     if (settingsFragment.findViewById<SwitchCompat>(R.id.btnSwitchSetting).isChecked) {
                         binding.btnSwitch.visibility = View.GONE
-                        binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.FULL)
+                        binding.customScannerView.startScanning(ViewType.FULLSCRREN)
                     } else {
                         if (binding.btnSwitch.checkedRadioButtonId == R.id.radioAuto) {
                             binding.customScannerView.startScanning(
-                                ViewType.RECTANGLE, ScanType.AUTO
+                                ViewType.RECTANGLE
                             )
                         } else {
                             binding.customScannerView.startScanning(
-                                ViewType.RECTANGLE, ScanType.MANUAL
+                                ViewType.RECTANGLE
                             )
                         }
                     }
@@ -349,15 +378,15 @@ class MainActivity : AppCompatActivity(), OCRResult {
                     binding.soundIcon.visibility = View.VISIBLE
                     binding.customScannerView.stopScanning()
                     if (settingsFragment.findViewById<SwitchCompat>(R.id.btnSwitchSetting).isChecked) {
-                        binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.FULL)
+                        binding.customScannerView.startScanning(ViewType.FULLSCRREN)
                         binding.btnSwitch.visibility = View.GONE
                     } else {
                         if (binding.btnSwitch.checkedRadioButtonId == R.id.radioAuto) {
-                            binding.customScannerView.startScanning(ViewType.SQUARE, ScanType.AUTO)
+                            binding.customScannerView.startScanning(ViewType.SQUARE)
 
                         } else {
                             binding.customScannerView.startScanning(
-                                ViewType.SQUARE, ScanType.MANUAL
+                                ViewType.SQUARE
                             )
                         }
                     }
@@ -369,7 +398,7 @@ class MainActivity : AppCompatActivity(), OCRResult {
                     binding.btnSwitch.visibility = View.GONE
                     isOCREnabled = true
                     binding.customScannerView.stopScanning()
-                    binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.OCR)
+                    binding.customScannerView.startScanning(ViewType.FULLSCRREN)
                     binding.camIcon.visibility = View.VISIBLE
                     binding.soundIcon.visibility = View.GONE
                     true
@@ -388,6 +417,7 @@ class MainActivity : AppCompatActivity(), OCRResult {
                 R.id.radioManual -> {
                     isManualModeActive = false
                     binding.camIcon.visibility = View.VISIBLE
+
                 }
 
                 R.id.radioAuto -> {
@@ -542,7 +572,7 @@ class MainActivity : AppCompatActivity(), OCRResult {
         Handler(Looper.getMainLooper()).postDelayed({
 
         }, 1000)
-        binding.customScannerView.startScanning(ViewType.RECTANGLE, ScanType.MANUAL)
+        binding.customScannerView.startScanning(ViewType.RECTANGLE)
         mediaPlayer = MediaPlayer.create(this, R.raw.beep_sound)
         if (isSoundEnabled) {
             binding.soundIcon.setImageResource(R.drawable.ic_sound_active)
@@ -570,7 +600,7 @@ class MainActivity : AppCompatActivity(), OCRResult {
         settingsFragment.setContentView(v)
         settingsFragment.setOnCancelListener {
             if (settingsFragment.findViewById<SwitchCompat>(R.id.btnSwitchSetting).isChecked && binding.bottomNav.selectedItemId != R.id.ocr) {
-                binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.FULL)
+                binding.customScannerView.startScanning(ViewType.FULLSCRREN)
             }
         }
 
@@ -583,8 +613,8 @@ class MainActivity : AppCompatActivity(), OCRResult {
                     binding.btnSwitch.visibility=View.GONE*/
                     binding.btnSwitch.check(R.id.radioManual)
                     if (binding.bottomNav.selectedItemId != R.id.ocr) {
-                        binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.FULL)
-                        binding.customScannerView.startScanning(ViewType.FULLSCRREN, ScanType.FULL)
+                        binding.customScannerView.startScanning(ViewType.FULLSCRREN)
+                        binding.customScannerView.startScanning(ViewType.FULLSCRREN)
                         binding.btnSwitch.visibility = View.GONE
                     }
 //                isMultiDetectionEnabled=true
@@ -595,11 +625,11 @@ class MainActivity : AppCompatActivity(), OCRResult {
                         if (binding.btnSwitch.checkedRadioButtonId == R.id.radioManual) {
 
                             binding.customScannerView.startScanning(
-                                ViewType.RECTANGLE, ScanType.MANUAL
+                                ViewType.RECTANGLE
                             )
                         } else {
                             binding.customScannerView.startScanning(
-                                ViewType.RECTANGLE, ScanType.AUTO
+                                ViewType.RECTANGLE
                             )
 
                         }
@@ -608,10 +638,10 @@ class MainActivity : AppCompatActivity(), OCRResult {
                         if (binding.btnSwitch.checkedRadioButtonId == R.id.radioManual) {
 
                             binding.customScannerView.startScanning(
-                                ViewType.SQUARE, ScanType.MANUAL
+                                ViewType.SQUARE
                             )
                         } else {
-                            binding.customScannerView.startScanning(ViewType.SQUARE, ScanType.AUTO)
+                            binding.customScannerView.startScanning(ViewType.SQUARE)
                         }
                     }
                 }
@@ -620,7 +650,7 @@ class MainActivity : AppCompatActivity(), OCRResult {
 
     }
 
-    private fun showOCRResult(ocrResponse: OcrResponse) {
+    private fun showOCRResult(ocrResponse: OcrResponseQA) {
         val meta = mutableListOf<String>()
         responseBinding.metadata.text = ""
         responseBinding.scrollView.visibility = View.VISIBLE
@@ -952,7 +982,7 @@ class MainActivity : AppCompatActivity(), OCRResult {
         }
     }
 
-    private fun showOCRResultDemo(ocrResponse: OCRResponseDemo) {
+    private fun showOCRResultDemo(ocrResponse: OCRResponse) {
         val meta = mutableListOf<String>()
         responseBinding.metadata.text = ""
         responseBinding.scrollView.visibility = View.VISIBLE
@@ -1259,25 +1289,14 @@ class MainActivity : AppCompatActivity(), OCRResult {
         }
     }
 
-    override fun onOCRResponse(ocrResponse: OCRResponseParent?) {
+    override fun onOCRResponse(ocrResponse: OCRResponse?) {
         binding.progressBar.hide()
-        when (ocrResponse) {
-            is OcrResponse -> {
-                showOCRResult(ocrResponse)
-            }
+        ocrResponse?.let { showOCRResultDemo(it) }
+    }
 
-            is OCRResponseDemo -> {
-                showOCRResultDemo(ocrResponse)
-            }
-
-            else -> {
-                Toast.makeText(this, "Something went wrong !", Toast.LENGTH_SHORT).show()
-                binding.progressBar.hide()
-                OCRDialog.dismiss()
-                binding.camIcon.isEnabled = true
-                Toast.makeText(this, "Something went wrong !", Toast.LENGTH_SHORT).show()
-            }
-        }
+    override fun onOCRResponse(ocrResponse: OcrResponseQA?) {
+        binding.progressBar.hide()
+        ocrResponse?.let { showOCRResult(it) }
     }
 
     override fun onOCRResponseFailed(throwable: Throwable?) {

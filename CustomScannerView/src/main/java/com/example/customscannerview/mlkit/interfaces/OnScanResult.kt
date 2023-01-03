@@ -1,6 +1,7 @@
 package com.example.customscannerview.mlkit.interfaces
 
-import com.example.customscannerview.mlkit.modelclasses.OCRResponseParent
+import com.example.customscannerview.mlkit.modelclasses.OCRResponse
+import com.example.customscannerview.mlkit.modelclasses.OcrResponseQA
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.text.Text
 
@@ -13,6 +14,11 @@ interface OnScanResult {
 }
 
 interface OCRResult {
-    fun onOCRResponse(ocrResponse: OCRResponseParent?)
+    fun onOCRResponse(ocrResponse: OCRResponse?)
+    fun onOCRResponseFailed(throwable: Throwable?)
+}
+
+interface OCRResultQA {
+    fun onOCRResponse(ocrResponse: OcrResponseQA?)
     fun onOCRResponseFailed(throwable: Throwable?)
 }

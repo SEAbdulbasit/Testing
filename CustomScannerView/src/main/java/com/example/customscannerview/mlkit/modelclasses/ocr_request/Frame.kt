@@ -1,4 +1,4 @@
-package com.example.scannerview.modelclasses.ocr_request
+package com.example.customscannerview.mlkit.modelclasses.ocr_request
 
 data class Frame(
     val payload: String,

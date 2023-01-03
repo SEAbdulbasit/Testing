@@ -22,6 +22,7 @@ import com.example.customscannerview.mlkit.*
 import com.example.customscannerview.mlkit.BitmapUtils.imageToBitmap
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OCRResult
+import com.example.customscannerview.mlkit.interfaces.OCRResultQA
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.example.customscannerview.mlkit.service.OcrApiService
 import com.example.customscannerview.mlkit.service.ServiceBuilder
@@ -265,8 +266,7 @@ class CustomScannerView(
         } else mBitmap
     }
 
-    private val repository = OCRRepository(ServiceBuilder.buildService(OcrApiService::class.java))
-    private val isQAVariant = true
+    private val repository = OCRRepository()
 
     fun makeOCRApiCall(bitmap: Bitmap, barcodeList: List<Barcode>, onScanResult: OCRResult) {
         CoroutineScope(Dispatchers.Main).launch {
@@ -279,17 +279,55 @@ class CustomScannerView(
         }
     }
 
+
+    fun makeQAOCRApiCall(bitmap: Bitmap, barcodeList: List<Barcode>, onScanResult: OCRResultQA) {
+        CoroutineScope(Dispatchers.Main).launch {
+            imageView.setImageBitmap(bitmap)
+            addView(imageView)
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            val string64 = BitmapUtils.convertBitmapToBase64(bitmap).toString()
+            ocrcallQA(onScanResult, string64, barcodeList)
+        }
+    }
+
     private suspend fun ocrcall(
         onScanResult: OCRResult,
         baseImage: String,
         barcodeList: List<Barcode>
     ) {
         try {
-            val response = repository.analyseOCRAsync(
-                repository.getOCRRequest(
-                    barcodeList, baseImage, isQAVariant
+            val response =
+                repository.analyseOCRAsync(
+                    repository.getDemoRequest(
+                        barcodeList, baseImage
+                    )
                 )
-            )
+            withContext(Dispatchers.Main) {
+                onScanResult.onOCRResponse(response)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            withContext(Dispatchers.Main) {
+                removeView(imageView)
+                onScanResult.onOCRResponseFailed(e)
+            }
+        }
+    }
+
+    private suspend fun ocrcallQA(
+        onScanResult: OCRResultQA,
+        baseImage: String,
+        barcodeList: List<Barcode>
+    ) {
+        try {
+            val response =
+                repository.analyseOCRAsyncQA(
+                    repository.getQARequest(
+                        barcodeList, baseImage
+                    )
+                )
             withContext(Dispatchers.Main) {
                 onScanResult.onOCRResponse(response)
             }

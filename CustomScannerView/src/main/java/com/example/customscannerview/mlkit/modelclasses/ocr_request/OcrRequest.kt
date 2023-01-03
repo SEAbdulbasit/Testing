@@ -4,4 +4,4 @@ data class OcrRequest(
     val image_url: String,
     val type: String,
     val barcode_values: List<String>,
-) : OCRRequestParent
+)
