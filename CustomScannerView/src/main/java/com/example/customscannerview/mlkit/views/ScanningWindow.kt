@@ -41,14 +41,15 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
             if (barcodeWindow.height == 0f) (overlayHeight * 0.23).toFloat() else barcodeWindow.height
 
         val cx = overlayWidth / 2
-        val cy = overlayHeight / 2
+        val cy =
+            if (barcodeWindow.verticalStartingPosition == 0f) overlayHeight / 2 else barcodeWindow.verticalStartingPosition + (boxHeight / 2)
         boxRect = RectF(
-            cx - boxWidth / 2, cy - boxHeight / 1.5f, cx + boxWidth / 2, cy + boxHeight / 4.5f
+            cx - boxWidth / 2, cy - boxHeight / 2f, cx + boxWidth / 2, cy + boxHeight / 2f
         )
         boxLeftSide = cx - boxWidth / 2
-        boxTopSide = cy - boxHeight / 1.5f
+        boxTopSide = cy - boxHeight / 2f
         boxRightSide = cx + boxWidth / 2
-        boxBottomSide = cy + boxHeight / 4.5f
+        boxBottomSide = cy + boxHeight / 2f
         boxCornerRadius = barcodeWindow.radius
 
         invalidate()
@@ -63,17 +64,24 @@ class ScanningWindow(context: Context, attrs: AttributeSet?) : View(context, att
             if (barcodeWindow.height == 0f) (overlayHeight * 0.38.toFloat()) else barcodeWindow.height
 
         val cx = overlayWidth / 2
-        val cy = overlayHeight / 2
+        val cy =
+            if (barcodeWindow.verticalStartingPosition == 0f) overlayHeight / 2 else barcodeWindow.verticalStartingPosition + (boxHeight / 2)
         boxRect = RectF(
-            cx - boxWidth / 2,
-            cy - boxHeight / 1.5f,
-            cx + boxWidth / 2,
-            cy + boxHeight / 4.5f
+            cx - boxWidth / 2, if (barcodeWindow.verticalStartingPosition == 0f) {
+                cy - boxHeight / 2f
+            } else {
+                barcodeWindow.verticalStartingPosition
+            }, cx + boxWidth / 2, if (barcodeWindow.verticalStartingPosition == 0f) {
+                cy + (boxHeight / 2f)
+            } else {
+                barcodeWindow.verticalStartingPosition + boxHeight
+            }
         )
+
         boxLeftSide = cx - boxWidth / 2
-        boxTopSide = cy - boxHeight / 1.5f
+        boxTopSide = cy - boxHeight / 2f
         boxRightSide = cx + boxWidth / 2
-        boxBottomSide = cy + boxHeight / 4.5f
+        boxBottomSide = cy + boxHeight / 2f
         boxCornerRadius = barcodeWindow.radius
 
         invalidate()

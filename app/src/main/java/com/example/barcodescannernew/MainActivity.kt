@@ -220,12 +220,13 @@ class MainActivity : AppCompatActivity(), OCRResult, OCRResultQA {
             Configuration(
                 barcodeWindow = ScanWindow(
                     width = ((binding.root.width * 0.9).toFloat()),
-                    height = ((binding.root.width * 0.4).toFloat()),
-                    radius = 100f
+                    height = ((binding.root.width * 0.3).toFloat()),
+                    radius = 10f,
+                    verticalStartingPosition = (binding.customScannerView.height / 2).toFloat() - ((binding.root.width * 0.4).toFloat()) //- (binding.root.width * 0.9)).toFloat()
                 ), qrCodeWindow = ScanWindow(
                     width = ((binding.root.width * 0.7).toFloat()),
                     height = ((binding.root.width * 0.7).toFloat()),
-                    radius = 20f
+                    radius = 10f
                 )
             )
         )

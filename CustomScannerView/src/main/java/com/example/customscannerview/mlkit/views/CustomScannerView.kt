@@ -24,8 +24,6 @@ import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OCRResult
 import com.example.customscannerview.mlkit.interfaces.OCRResultQA
 import com.example.customscannerview.mlkit.interfaces.OnScanResult
-import com.example.customscannerview.mlkit.service.OcrApiService
-import com.example.customscannerview.mlkit.service.ServiceBuilder
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -342,9 +340,9 @@ class CustomScannerView(
         }
     }
 
-    var configuration = Configuration(
-        barcodeWindow = ScanWindow(0f, 0f, 10f),
-        qrCodeWindow = ScanWindow(0f, 0f, 10f),
+    private var configuration = Configuration(
+        barcodeWindow = ScanWindow(0f, 0f, 5f),
+        qrCodeWindow = ScanWindow(0f, 0f, 5f),
     )
 
     fun setScanningWindowConfiguration(conf: Configuration) {
@@ -367,4 +365,9 @@ data class Configuration(
     val qrCodeWindow: ScanWindow
 )
 
-data class ScanWindow(val width: Float, val height: Float, val radius: Float)
+data class ScanWindow(
+    val width: Float=0f,
+    val height: Float=0f,
+    val radius: Float=0f,
+    val verticalStartingPosition: Float = 0f
+)
