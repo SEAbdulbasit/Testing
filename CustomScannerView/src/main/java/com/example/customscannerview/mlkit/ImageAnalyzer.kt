@@ -3,7 +3,6 @@ package com.example.customscannerview.mlkit
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -11,7 +10,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 
 class ImageAnalyzer(
-    private val onScanResult: OnScanResult?
+    private val onScanResult: CameraXBarcodeCallback?
 ) : ImageAnalysis.Analyzer {
 
     private var isScanning: Boolean = false
@@ -30,15 +29,16 @@ class ImageAnalyzer(
             isScanning = true
 
             textDetector.process(image).addOnSuccessListener {
-                onScanResult?.onSomeTextDetected(it)
+                onScanResult?.onTextDetected(it)
             }
 
             scanner.process(image).addOnSuccessListener { barcodes ->
-                onScanResult?.onMultiBarcodesDetected(barcodes)
+                onScanResult?.onMultiBarcodeScanned(barcodes)
                 isScanning = false
                 imageProxy.close()
             }.addOnCompleteListener {
-                onScanResult?.onViewDetected(it.result)
+                onScanResult?.onMultiBarcodeScanned(it.result)
+                it.result.forEach { onScanResult?.onNewBarcodeScanned(it) }
                 imageProxy.close()
             }.addOnFailureListener {
                 imageProxy.close()

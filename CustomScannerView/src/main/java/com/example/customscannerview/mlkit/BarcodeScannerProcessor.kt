@@ -1,7 +1,6 @@
 package com.example.customscannerview.mlkit
 
 import android.graphics.RectF
-import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -14,8 +13,6 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 /** Barcode Detector Demo.  */
 class BarcodeScannerProcessor(
     private val callback: CameraXBarcodeCallback,
-    private val textCallback: CameraXTextCallback,
-    private val somethingDetected: OnScanResult,
     private val getRectCallback: () -> RectF?
 ) : VisionProcessorBase<List<Barcode>>() {
 
@@ -30,14 +27,14 @@ class BarcodeScannerProcessor(
 
     override fun detectInImage(image: InputImage): Task<List<Barcode>> {
         textDetector.process(image).addOnSuccessListener {
-            textCallback.onTextDetected(it)
+            callback.onTextDetected(it)
         }
         return barcodeScanner.process(image)
     }
 
     override fun onSuccess(results: List<Barcode>, graphicOverlay: GraphicOverlay) {
         getRectCallback.invoke()?.let { scanningRect ->
-            val filteredResults = results.map { barcode ->
+            results.map { barcode ->
                 val barcodeOverlay = BarcodeGraphic(graphicOverlay, barcode, scanningRect)
                 val barcodeDrawingReact = barcodeOverlay.getDrawingReact(barcode)
                 if (scanningRect.contains(barcodeDrawingReact)) {
@@ -46,10 +43,10 @@ class BarcodeScannerProcessor(
                 } else {
                     BarcodeWithAreaFlag(barcode, false)
                 }
-            }.filter { it.isWithInScanningArea }
+            }.filter { it.isWithInScanningArea }.apply {
+                callback.onMultiBarcodeScanned(this.map { it.barcode }.toMutableList())
+            }
                 .onEach { callback.onNewBarcodeScanned(barcode = it.barcode) }.map { it.barcode }
-
-            somethingDetected.onViewDetected(filteredResults.toMutableList())
         }
     }
 
@@ -62,17 +59,10 @@ class BarcodeScannerProcessor(
 
 data class BarcodeWithAreaFlag(val barcode: Barcode, val isWithInScanningArea: Boolean)
 
-fun interface CameraXBarcodeCallback {
+interface CameraXBarcodeCallback {
     fun onNewBarcodeScanned(barcode: Barcode)
-
-}
-
-fun interface CameraXTextCallback {
-    fun onTextDetected(text: Text)
-}
-
-fun interface CameraXMultiBarcodeCallback {
     fun onMultiBarcodeScanned(barcodes: MutableList<Barcode>)
+    fun onTextDetected(text: Text)
+
+
 }
-
-

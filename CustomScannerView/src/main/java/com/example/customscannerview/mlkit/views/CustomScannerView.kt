@@ -23,7 +23,6 @@ import com.example.customscannerview.mlkit.BitmapUtils.imageToBitmap
 import com.example.customscannerview.mlkit.enums.ViewType
 import com.example.customscannerview.mlkit.interfaces.OCRResult
 import com.example.customscannerview.mlkit.interfaces.OCRResultQA
-import com.example.customscannerview.mlkit.interfaces.OnScanResult
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -35,8 +34,7 @@ import java.util.concurrent.Executors
 
 class CustomScannerView(
     context: Context, private val attrs: AttributeSet?
-) : FrameLayout(context, attrs), CameraXBarcodeCallback, CameraXTextCallback,
-    CameraXMultiBarcodeCallback, OnScanResult {
+) : FrameLayout(context, attrs), CameraXBarcodeCallback {
 
     private lateinit var imageCapture: ImageCapture
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
@@ -54,17 +52,27 @@ class CustomScannerView(
     private var needUpdateGraphicOverlayImageSourceInfo = false
     private lateinit var previewView: PreviewView
     private lateinit var graphicOverlay: GraphicOverlay
-    var selectedViewType: ViewType = ViewType.RECTANGLE
     private lateinit var cameraControls: CameraControl
-    val barcodeResultSingle = MutableLiveData<Barcode>()
     val textIndicator = MutableLiveData<Text>()
     val multipleBarcodes = MutableLiveData<MutableList<Barcode>>()
     val barcodeIndicators = MutableLiveData<MutableList<Barcode>>()
-    private val testBarcodes = mutableListOf<Barcode>()
+
+    var customViewState = CustomScannerState()
+    private var callbacks: ScannerCallbacks? = null
 
 
-    fun startScanning(viewType: ViewType) {
-        selectedViewType = viewType
+    fun startScanning(
+        viewType: ViewType,
+        scanningMode: ScanningMode,
+        detectionMode: DetectionMode,
+        scannerCallbacks: ScannerCallbacks
+    ) {
+        callbacks = scannerCallbacks
+        customViewState = customViewState.copy(
+            scanningWindow = viewType,
+            scanningMode = scanningMode,
+            detectionMode = detectionMode
+        )
 
         // design work
         removeAllViews()
@@ -80,36 +88,49 @@ class CustomScannerView(
         imageCapture = ImageCapture.Builder().build()
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        if (viewType == ViewType.RECTANGLE) {
-            scanningWindow.post {
-                scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
-            }
-            addView(scanningWindow)
-            scanningWindow.visibility = View.VISIBLE
-            initiateCamera(viewType)
-        } else if (viewType == ViewType.SQUARE) {
-            scanningWindow.post {
-                scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
+
+
+        when (customViewState.detectionMode) {
+            DetectionMode.Auto, DetectionMode.Barcode, DetectionMode.QR -> {
+                when (viewType) {
+                    ViewType.RECTANGLE -> {
+                        scanningWindow.post {
+                            scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
+                        }
+                        addView(scanningWindow)
+                        scanningWindow.visibility = View.VISIBLE
+                        initiateCamera(viewType)
+                    }
+
+                    ViewType.SQUARE -> {
+                        scanningWindow.post {
+                            scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
+                        }
+                        addView(scanningWindow)
+                        scanningWindow.visibility = View.VISIBLE
+                        initiateCamera(viewType)
+                    }
+
+                    else -> {
+                        scanningWindow.visibility = GONE
+                        initiateCamera(ViewType.FULLSCRREN)
+                    }
+                }
             }
 
-            addView(scanningWindow)
-            scanningWindow.visibility = View.VISIBLE
-            initiateCamera(viewType)
-        } else if (viewType == ViewType.FULLSCRREN) {
-            scanningWindow.visibility = GONE
-            initiateCamera(viewType)
+            DetectionMode.OCR -> {
+                scanningWindow.visibility = GONE
+                initiateCamera(ViewType.FULLSCRREN)
+            }
         }
-
     }
 
     private fun initiateCamera(viewType: ViewType) {
         cameraSelector =
             CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
 
-        imageProcessor = BarcodeScannerProcessor(callback = this,
-            textCallback = this,
-            somethingDetected = this,
-            getRectCallback = { getScanningRect() })
+        imageProcessor =
+            BarcodeScannerProcessor(callback = this, getRectCallback = { getScanningRect() })
 
         if (viewType == ViewType.RECTANGLE || viewType == ViewType.SQUARE) {
             cameraXViewModel =
@@ -193,15 +214,114 @@ class CustomScannerView(
     }
 
     override fun onNewBarcodeScanned(barcode: Barcode) {
-        barcodeResultSingle.postValue(barcode)
+        Log.d("SDFds", "New Barcode detected and state is $customViewState")
+        when (customViewState.scanningMode) {
+            ScanningMode.Auto -> {
+                when (customViewState.detectionMode) {
+                    DetectionMode.Auto -> {
+                        callbacks?.onBarcodeDetected(barcode)
+                    }
+
+                    DetectionMode.Barcode -> {
+                        if (ONE_DIMENSIONAL_FORMATS.contains(barcode.format)) {
+                            callbacks?.onBarcodeDetected(barcode)
+                            failureJob?.cancel()
+                        }
+                    }
+
+                    DetectionMode.QR -> {
+                        if (TWO_DIMENSIONAL_FORMATS.contains(barcode.format)) {
+                            callbacks?.onBarcodeDetected(barcode)
+                            failureJob?.cancel()
+                        }
+                    }
+
+
+                    DetectionMode.OCR -> {
+                        //No need incase of OCR
+                    }
+
+                }
+            }
+
+            ScanningMode.Manual -> {
+                if (customViewState.cameraTriggerForDetected) {
+                    when (customViewState.detectionMode) {
+                        DetectionMode.Auto -> {
+                            failureJob?.cancel()
+                            customViewState = customViewState.copy(cameraTriggerForDetected = false)
+                            callbacks?.onBarcodeDetected(barcode)
+                        }
+
+                        DetectionMode.Barcode -> {
+                            if (ONE_DIMENSIONAL_FORMATS.contains(barcode.format)) {
+                                failureJob?.cancel()
+                                customViewState =
+                                    customViewState.copy(cameraTriggerForDetected = false)
+                                callbacks?.onBarcodeDetected(barcode)
+                            }
+                        }
+
+                        DetectionMode.QR -> {
+                            if (TWO_DIMENSIONAL_FORMATS.contains(barcode.format)) {
+                                failureJob?.cancel()
+                                customViewState =
+                                    customViewState.copy(cameraTriggerForDetected = false)
+                                callbacks?.onBarcodeDetected(barcode)
+                            }
+                        }
+
+                        DetectionMode.OCR -> {
+                            //Nothing to do incase of OCR
+                        }
+
+                    }
+                }
+            }
+
+            else -> {
+
+            }
+        }
     }
+
 
     override fun onTextDetected(text: Text) {
         textIndicator.postValue(text)
     }
 
     override fun onMultiBarcodeScanned(barcodes: MutableList<Barcode>) {
-        multipleBarcodes.postValue(barcodes)
+        barcodeIndicators.postValue(barcodes)
+        if (customViewState.scanningMode == ScanningMode.Manual) {
+            if (customViewState.cameraTriggerForDetected) {
+                when (customViewState.detectionMode) {
+
+                    DetectionMode.Auto -> {
+                        callbacks?.onMultipleBarcodesDetected(barcodeList = barcodes)
+                    }
+
+                    DetectionMode.Barcode -> {
+                        val filteredBarcodes =
+                            barcodes.filter { ONE_DIMENSIONAL_FORMATS.contains(it.format) }
+                        if (filteredBarcodes.isEmpty()) {
+                            callbacks?.onMultipleBarcodesDetected(barcodeList = filteredBarcodes)
+                        }
+                    }
+
+                    DetectionMode.OCR -> {
+                        //No need to send the callbacks in case of OCR
+                    }
+
+                    DetectionMode.QR -> {
+                        val filteredBarcodes =
+                            barcodes.filter { TWO_DIMENSIONAL_FORMATS.contains(it.format) }
+                        if (filteredBarcodes.isEmpty()) {
+                            callbacks?.onMultipleBarcodesDetected(barcodeList = filteredBarcodes)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun stopScanning() {
@@ -216,23 +336,33 @@ class CustomScannerView(
         cameraControls.enableTorch(false)
     }
 
-    override fun onViewDetected(barCodeResult: MutableList<Barcode>) {
-        barcodeIndicators.postValue(barCodeResult)
+    var failureJob: Job? = null
+
+    fun capture() {
+        Log.d("MainActivity", "api responded with  ${customViewState.toString()}")
+        when (customViewState.detectionMode) {
+            DetectionMode.Auto -> {
+                customViewState = customViewState.copy(cameraTriggerForDetected = true)
+                failureJob = showManualFailureDetectionDialog()
+            }
+
+            DetectionMode.Barcode -> {
+                customViewState = customViewState.copy(cameraTriggerForDetected = true)
+                failureJob = showManualFailureDetectionDialog()
+            }
+
+            DetectionMode.QR -> {
+                customViewState = customViewState.copy(cameraTriggerForDetected = true)
+                failureJob = showManualFailureDetectionDialog()
+            }
+
+            DetectionMode.OCR -> {
+                captureImage()
+            }
+        }
     }
 
-
-    override fun onMultiBarcodesDetected(barcodes: List<Barcode>) {
-        testBarcodes.clear()
-        testBarcodes.addAll(barcodes)
-        multipleBarcodes.postValue(barcodes as MutableList<Barcode>)
-    }
-
-    override fun onSomeTextDetected(text: Text) {
-        textIndicator.postValue(text)
-    }
-
-
-    fun captureImage(captureCallback: CaptureCallback) {
+    private fun captureImage() {
         imageCapture.takePicture(cameraExecutor!!, object : ImageCapture.OnImageCapturedCallback() {
             @SuppressLint("UnsafeOptInUsageError")
             override fun onCaptureSuccess(imageProxy: ImageProxy) {
@@ -245,7 +375,7 @@ class CustomScannerView(
                 imageView.layoutParams = params
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-                captureCallback.onImageCaptured(bitmap, multipleBarcodes.value)
+                callbacks?.onImageCaptured(bitmap, multipleBarcodes.value)
                 imageProxy.close()
             }
 
@@ -290,17 +420,14 @@ class CustomScannerView(
 //    }
 
     private suspend fun ocrcall(
-        onScanResult: OCRResult,
-        baseImage: String,
-        barcodeList: List<Barcode>
+        onScanResult: OCRResult, baseImage: String, barcodeList: List<Barcode>
     ) {
         try {
-            val response =
-                repository.analyseOCRAsync(
-                    repository.getDemoRequest(
-                        barcodeList, baseImage
-                    )
+            val response = repository.analyseOCRAsync(
+                repository.getDemoRequest(
+                    barcodeList, baseImage
                 )
+            )
             withContext(Dispatchers.Main) {
                 removeView(imageView)
                 onScanResult.onOCRResponse(response)
@@ -315,17 +442,14 @@ class CustomScannerView(
     }
 
     private suspend fun ocrcallQA(
-        onScanResult: OCRResultQA,
-        baseImage: String,
-        barcodeList: List<Barcode>
+        onScanResult: OCRResultQA, baseImage: String, barcodeList: List<Barcode>
     ) {
         try {
-            val response =
-                repository.analyseOCRAsyncQA(
-                    repository.getQARequest(
-                        barcodeList, baseImage
-                    )
+            val response = repository.analyseOCRAsyncQA(
+                repository.getQARequest(
+                    barcodeList, baseImage
                 )
+            )
             withContext(Dispatchers.Main) {
                 removeView(imageView)
                 onScanResult.onOCRResponse(response)
@@ -347,27 +471,37 @@ class CustomScannerView(
 
     fun setScanningWindowConfiguration(conf: Configuration) {
         this.configuration = conf
-        when (selectedViewType) {
+        when (customViewState.scanningWindow) {
             ViewType.RECTANGLE -> scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
             ViewType.SQUARE -> scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
             ViewType.FULLSCRREN -> {}
         }
     }
-}
 
-interface CaptureCallback {
-    fun onImageCaptured(bitmap: Bitmap, value: MutableList<Barcode>?)
+    private fun showManualFailureDetectionDialog(): Job {
+        return CoroutineScope(Dispatchers.Main).launch {
+            launch {
+                delay(1500)
+                customViewState = customViewState.copy(cameraTriggerForDetected = false)
+                when (customViewState.detectionMode) {
+                    DetectionMode.Auto -> callbacks?.onFailure(ScannerException.BarCodeNotDetected())
+                    DetectionMode.Barcode -> callbacks?.onFailure(ScannerException.BarCodeNotDetected())
+                    DetectionMode.QR -> callbacks?.onFailure(ScannerException.BarCodeNotDetected())
+                }
+
+            }
+        }
+    }
 }
 
 
 data class Configuration(
-    val barcodeWindow: ScanWindow,
-    val qrCodeWindow: ScanWindow
+    val barcodeWindow: ScanWindow, val qrCodeWindow: ScanWindow
 )
 
 data class ScanWindow(
-    val width: Float=0f,
-    val height: Float=0f,
-    val radius: Float=0f,
+    val width: Float = 0f,
+    val height: Float = 0f,
+    val radius: Float = 0f,
     val verticalStartingPosition: Float = 0f
 )

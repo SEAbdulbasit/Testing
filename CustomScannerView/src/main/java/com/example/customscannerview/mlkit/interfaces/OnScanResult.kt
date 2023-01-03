@@ -6,12 +6,6 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.text.Text
 
 
-interface OnScanResult {
-
-    fun onViewDetected(barCodeResult: MutableList<Barcode>)
-    fun onMultiBarcodesDetected(barcodes: List<Barcode>)
-    fun onSomeTextDetected(text: Text)
-}
 
 interface OCRResult {
     fun onOCRResponse(ocrResponse: OCRResponse?)
