@@ -269,11 +269,12 @@ class MainActivity : AppCompatActivity(), OCRResult, OCRResultQA {
                 binding.customScannerView.makeOCRApiCall(
                     bitmap, value?.toList() ?: emptyList(), this@MainActivity
                 )
-            } else {
-                binding.customScannerView.makeQAOCRApiCall(
-                    bitmap, value?.toList() ?: emptyList(), this@MainActivity
-                )
             }
+//            else {
+//                binding.customScannerView.makeQAOCRApiCall(
+//                    bitmap, value?.toList() ?: emptyList(), this@MainActivity
+//                )
+//            }
         }
 
     }
@@ -1291,16 +1292,19 @@ class MainActivity : AppCompatActivity(), OCRResult, OCRResultQA {
 
     override fun onOCRResponse(ocrResponse: OCRResponse?) {
         binding.progressBar.hide()
+        binding.customScannerView.imageView.visibility = View.GONE
         ocrResponse?.let { showOCRResultDemo(it) }
     }
 
     override fun onOCRResponse(ocrResponse: OcrResponseQA?) {
         binding.progressBar.hide()
+        binding.customScannerView.imageView.visibility = View.GONE
         ocrResponse?.let { showOCRResult(it) }
     }
 
     override fun onOCRResponseFailed(throwable: Throwable?) {
         binding.progressBar.hide()
+        binding.customScannerView.imageView.visibility = View.GONE
         OCRDialog.dismiss()
         binding.camIcon.isEnabled = true
         Toast.makeText(this, "Failed: ${throwable.toString()}", Toast.LENGTH_SHORT).show()

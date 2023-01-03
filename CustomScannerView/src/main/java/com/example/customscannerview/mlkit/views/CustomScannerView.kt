@@ -280,16 +280,16 @@ class CustomScannerView(
     }
 
 
-    fun makeQAOCRApiCall(bitmap: Bitmap, barcodeList: List<Barcode>, onScanResult: OCRResultQA) {
-        CoroutineScope(Dispatchers.Main).launch {
-            imageView.setImageBitmap(bitmap)
-            addView(imageView)
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            val string64 = BitmapUtils.convertBitmapToBase64(bitmap).toString()
-            ocrcallQA(onScanResult, string64, barcodeList)
-        }
-    }
+//    fun makeQAOCRApiCall(bitmap: Bitmap, barcodeList: List<Barcode>, onScanResult: OCRResultQA) {
+//        CoroutineScope(Dispatchers.Main).launch {
+//            imageView.setImageBitmap(bitmap)
+//            addView(imageView)
+//        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            val string64 = BitmapUtils.convertBitmapToBase64(bitmap).toString()
+//            ocrcallQA(onScanResult, string64, barcodeList)
+//        }
+//    }
 
     private suspend fun ocrcall(
         onScanResult: OCRResult,
@@ -304,13 +304,13 @@ class CustomScannerView(
                     )
                 )
             withContext(Dispatchers.Main) {
+                removeView(imageView)
                 onScanResult.onOCRResponse(response)
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
             withContext(Dispatchers.Main) {
-                removeView(imageView)
                 onScanResult.onOCRResponseFailed(e)
             }
         }
@@ -329,6 +329,7 @@ class CustomScannerView(
                     )
                 )
             withContext(Dispatchers.Main) {
+                removeView(imageView)
                 onScanResult.onOCRResponse(response)
             }
 
