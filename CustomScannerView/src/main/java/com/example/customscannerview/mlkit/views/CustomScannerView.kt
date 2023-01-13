@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.*
-import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.camera.core.*
@@ -91,30 +90,49 @@ class CustomScannerView(
 
 
         when (customViewState.detectionMode) {
-            DetectionMode.Auto, DetectionMode.Barcode, DetectionMode.QR -> {
+            DetectionMode.QRAndBarcode, DetectionMode.Barcode, DetectionMode.QR -> {
                 when (viewType) {
-                    ViewType.RECTANGLE -> {
-                        scanningWindow.post {
-                            scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
-                        }
-                        addView(scanningWindow)
-                        scanningWindow.visibility = View.VISIBLE
-                        initiateCamera(viewType)
-                    }
-
-                    ViewType.SQUARE -> {
-                        scanningWindow.post {
-                            scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
-                        }
-                        addView(scanningWindow)
-                        scanningWindow.visibility = View.VISIBLE
-                        initiateCamera(viewType)
-                    }
-
-                    else -> {
+                    ViewType.FULLSCRREN -> {
                         scanningWindow.visibility = GONE
                         initiateCamera(ViewType.FULLSCRREN)
                     }
+
+                    ViewType.WINDOW -> {
+                        when (detectionMode) {
+                            DetectionMode.QRAndBarcode -> {
+                                scanningWindow.post {
+                                    scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
+                                }
+                                addView(scanningWindow)
+                                scanningWindow.visibility = VISIBLE
+                                initiateCamera(viewType)
+                            }
+
+                            DetectionMode.Barcode -> {
+                                scanningWindow.post {
+                                    scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
+                                }
+                                addView(scanningWindow)
+                                scanningWindow.visibility = VISIBLE
+                                initiateCamera(viewType)
+                            }
+
+                            DetectionMode.OCR -> {
+                                scanningWindow.visibility = GONE
+                                initiateCamera(ViewType.FULLSCRREN)
+                            }
+
+                            DetectionMode.QR -> {
+                                scanningWindow.post {
+                                    scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
+                                }
+                                addView(scanningWindow)
+                                scanningWindow.visibility = VISIBLE
+                                initiateCamera(viewType)
+                            }
+                        }
+                    }
+
                 }
             }
 
@@ -132,7 +150,7 @@ class CustomScannerView(
         imageProcessor =
             BarcodeScannerProcessor(callback = this, getRectCallback = { getScanningRect() })
 
-        if (viewType == ViewType.RECTANGLE || viewType == ViewType.SQUARE) {
+        if (viewType == ViewType.WINDOW) {
             cameraXViewModel =
                 ViewModelProvider(context as ViewModelStoreOwner)[CameraXViewModel::class.java]
             cameraXViewModel.processCameraProvider.observe(context as LifecycleOwner) { provider: ProcessCameraProvider? ->
@@ -218,7 +236,7 @@ class CustomScannerView(
         when (customViewState.scanningMode) {
             ScanningMode.Auto -> {
                 when (customViewState.detectionMode) {
-                    DetectionMode.Auto -> {
+                    DetectionMode.QRAndBarcode -> {
                         callbacks?.onBarcodeDetected(barcode)
                     }
 
@@ -247,7 +265,7 @@ class CustomScannerView(
             ScanningMode.Manual -> {
                 if (customViewState.cameraTriggerForDetected) {
                     when (customViewState.detectionMode) {
-                        DetectionMode.Auto -> {
+                        DetectionMode.QRAndBarcode -> {
                             failureJob?.cancel()
                             customViewState = customViewState.copy(cameraTriggerForDetected = false)
                             callbacks?.onBarcodeDetected(barcode)
@@ -296,7 +314,7 @@ class CustomScannerView(
             if (customViewState.cameraTriggerForDetected) {
                 when (customViewState.detectionMode) {
 
-                    DetectionMode.Auto -> {
+                    DetectionMode.QRAndBarcode -> {
                         callbacks?.onMultipleBarcodesDetected(barcodeList = barcodes)
                     }
 
@@ -341,7 +359,7 @@ class CustomScannerView(
     fun capture() {
         Log.d("MainActivity", "api responded with  ${customViewState.toString()}")
         when (customViewState.detectionMode) {
-            DetectionMode.Auto -> {
+            DetectionMode.QRAndBarcode -> {
                 customViewState = customViewState.copy(cameraTriggerForDetected = true)
                 failureJob = showManualFailureDetectionDialog()
             }
@@ -471,11 +489,6 @@ class CustomScannerView(
 
     fun setScanningWindowConfiguration(conf: Configuration) {
         this.configuration = conf
-        when (customViewState.scanningWindow) {
-            ViewType.RECTANGLE -> scanningWindow.setRectangleViewFinder(configuration.barcodeWindow)
-            ViewType.SQUARE -> scanningWindow.setSquareViewFinder(configuration.qrCodeWindow)
-            ViewType.FULLSCRREN -> {}
-        }
     }
 
     private fun showManualFailureDetectionDialog(): Job {
@@ -484,7 +497,7 @@ class CustomScannerView(
                 delay(1500)
                 customViewState = customViewState.copy(cameraTriggerForDetected = false)
                 when (customViewState.detectionMode) {
-                    DetectionMode.Auto -> callbacks?.onFailure(ScannerException.BarCodeNotDetected())
+                    DetectionMode.QRAndBarcode -> callbacks?.onFailure(ScannerException.BarCodeNotDetected())
                     DetectionMode.Barcode -> callbacks?.onFailure(ScannerException.BarCodeNotDetected())
                     DetectionMode.QR -> callbacks?.onFailure(ScannerException.BarCodeNotDetected())
                 }

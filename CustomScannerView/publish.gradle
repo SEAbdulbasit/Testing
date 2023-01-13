@@ -12,7 +12,7 @@ def getArtificatId = { ->
 }
 
 def getVersionName = { ->
-    return "0.0.6"
+    return "0.0.8"
 }
 
 
@@ -49,7 +49,7 @@ publishing {
              ** Replace GITHUB_USERID with your/organisation Github userID
              ** and REPOSITORY with the repository name on GitHub
              */
-            url = uri("https://maven.pkg.github.com/packagexlabs/vision-sdk-andriod")
+            url = uri("https://maven.pkg.github.com/packagexlabs/vision-sdk-packages")
 
             credentials {
                 username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")

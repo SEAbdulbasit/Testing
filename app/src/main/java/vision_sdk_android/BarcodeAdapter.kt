@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.example.barcodescannernew.R
+import vision_sdk_android.copyToClipboard
 
 class BarcodeAdapter : RecyclerView.Adapter<BarcodeAdapter.BarcodeViewHolder>() {
     var barcodes = mutableListOf<BarcodeModel>()

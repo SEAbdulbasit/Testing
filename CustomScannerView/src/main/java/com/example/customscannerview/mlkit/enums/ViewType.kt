@@ -1,8 +1,7 @@
 package com.example.customscannerview.mlkit.enums
 
 sealed interface ViewType {
-    object RECTANGLE : ViewType
-    object SQUARE : ViewType
+    object WINDOW : ViewType
     object FULLSCRREN : ViewType
 }
 

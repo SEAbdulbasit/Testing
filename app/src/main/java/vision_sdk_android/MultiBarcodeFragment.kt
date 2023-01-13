@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.barcodescannernew.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import vision_sdk_android.copyToClipboard
 
 class MultiBarcodeFragment : DialogFragment() {
     var shown = false
